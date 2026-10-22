@@ -1,7 +1,7 @@
 const mongoose = require("mongoose");
 const Music = require("../models/music");
 const album = require("../models/album");
-const { uploadFile } = require("../services/storage.service.js");
+const { uploadFile, getUploadAuth } = require("../services/storage.service.js");
 
 const createmusic = async (req, res) => {
   try {
@@ -71,6 +71,66 @@ const createmusic = async (req, res) => {
   }
 };
 
+const uploadauth = (req, res) => {
+  try {
+    return res.status(200).json(getUploadAuth());
+  } catch (error) {
+    console.error("Error creating upload auth:", error);
+    return res.status(500).json({ message: "Failed to prepare upload" });
+  }
+};
+
+// Saves a track the browser already uploaded to ImageKit (fast path)
+const savemusic = async (req, res) => {
+  try {
+    const { uri, title, artist, album: albumName, genre, lyrics, duration } = req.body;
+    const artistId = req.user?._id;
+
+    if (!title) {
+      return res.status(400).json({ message: "Music title is required" });
+    }
+
+    // only accept files hosted on our own ImageKit account
+    const endpoint = (process.env.IMAGEKIT_URL_ENDPOINT || "https://ik.imagekit.io/").replace(/\/?$/, "/");
+    if (!uri || !uri.startsWith(endpoint)) {
+      return res.status(400).json({ message: "Invalid audio file URL" });
+    }
+
+    const DEFAULT_COVERS = [
+      "https://images.unsplash.com/photo-1514525253161-7a46d19cd819?w=600&auto=format&fit=crop&q=80",
+      "https://images.unsplash.com/photo-1518709268805-4e9042af9f23?w=600&auto=format&fit=crop&q=80",
+      "https://images.unsplash.com/photo-1470225620780-dba8ba36b745?w=600&auto=format&fit=crop&q=80",
+      "https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=600&auto=format&fit=crop&q=80",
+      "https://images.unsplash.com/photo-1508700115892-45ecd05ae2ad?w=600&auto=format&fit=crop&q=80",
+    ];
+
+    const musicData = {
+      uri,
+      title: title.trim(),
+      artistName: artist || req.user?.name || "Beatly Artist",
+      album: albumName ? albumName.trim() : "Single",
+      genre: genre || "Electronic",
+      coverUrl: DEFAULT_COVERS[Math.floor(Math.random() * DEFAULT_COVERS.length)],
+      lyrics: lyrics || "",
+      duration: Number(duration) > 0 ? Math.round(Number(duration)) : 200,
+    };
+
+    if (artistId && mongoose.Types.ObjectId.isValid(artistId)) {
+      musicData.artist = artistId;
+    }
+
+    const createdSong = await Music.create(musicData);
+
+    return res.status(201).json({
+      message: "Music created successfully",
+      music: createdSong,
+    });
+  } catch (error) {
+    console.error("Error saving music:", error);
+    return res.status(500).json({ message: "Failed to save music" });
+  }
+};
+
 const getalbum = async (req, res) => {
   try {
     const { title, musics } = req.body;
@@ -121,4 +181,4 @@ const getalbums = async (req, res) => {
   }
 };
 
-module.exports = { createmusic, getalbum, getallmusic, getalbums };
+module.exports = { createmusic, uploadauth, savemusic, getalbum, getallmusic, getalbums };

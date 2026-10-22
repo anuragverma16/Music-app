@@ -1,6 +1,8 @@
 // Genre Categories for browsing & filtering
 export const GENRES = [
   { id: 'all', name: 'All Genres', color: 'from-blue-600 to-indigo-800' },
+  { id: 'Punjabi', name: 'Punjabi Beats', color: 'from-orange-500 to-red-700' },
+  { id: 'Bollywood', name: 'Bollywood Hits', color: 'from-rose-500 to-amber-600' },
   { id: 'Synthwave', name: 'Synthwave & Retro', color: 'from-pink-600 to-purple-800' },
   { id: 'Lo-Fi', name: 'Lo-Fi & Study', color: 'from-emerald-600 to-teal-800' },
   { id: 'Electronic', name: 'Electronic & EDM', color: 'from-violet-600 to-fuchsia-800' },

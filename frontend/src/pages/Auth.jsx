@@ -2,14 +2,11 @@ import React, { useState, useEffect, useRef } from 'react'
 import {
   Music,
   Headphones,
-  Sparkles,
   Lock,
   Mail,
   User,
   Disc3,
   ArrowRight,
-  ShieldCheck,
-  Zap,
 } from 'lucide-react'
 import gsap from 'gsap'
 import { authAPI } from '../utils/api'
@@ -17,7 +14,6 @@ import { setToken } from '../utils/auth'
 
 export default function Auth({ onLogin }) {
   const [isLogin, setIsLogin] = useState(true)
-  const [role, setRole] = useState('user') // 'user' | 'artist'
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -73,8 +69,8 @@ export default function Auth({ onLogin }) {
           password: formData.password,
         })
 
-        const user = response.data?.user
-        const token = response.data?.token || response.data?.user?.token || 'authenticated-token'
+        const { token, user } = response.data
+        if (!token) throw new Error('Login failed: no token received')
         const userRole = user?.role || 'user'
 
         setToken(token)
@@ -85,12 +81,11 @@ export default function Auth({ onLogin }) {
           name: formData.name,
           email: formData.email,
           password: formData.password,
-          role: role,
         })
 
-        const user = response.data?.user
-        const token = response.data?.token || user?.token || 'authenticated-token'
-        const userRole = user?.role || role
+        const { token, user } = response.data
+        if (!token) throw new Error('Registration failed: no token received')
+        const userRole = user?.role || 'user'
 
         setToken(token)
         onLogin(userRole)
@@ -100,17 +95,11 @@ export default function Auth({ onLogin }) {
       const errorMsg =
         typeof err.response?.data === 'string'
           ? err.response?.data
-          : err.response?.data?.message || err.message || 'Authentication failed. Try demo login.'
+          : err.response?.data?.message || (err.response ? err.message : 'Unable to reach the server. Please try again.')
       setError(errorMsg)
     } finally {
       setLoading(false)
     }
-  }
-
-  // Quick Instant Demo Login
-  const handleDemoLogin = (demoRole) => {
-    setToken(`demo-token-${demoRole}`)
-    onLogin(demoRole)
   }
 
   return (
@@ -234,42 +223,6 @@ export default function Auth({ onLogin }) {
             </div>
           </div>
 
-          {/* Role Selection (on Register) */}
-          {!isLogin && (
-            <div className="pt-1">
-              <label className="block text-xs font-semibold text-gray-300 uppercase tracking-wider mb-2">
-                I am joining as:
-              </label>
-              <div className="grid grid-cols-2 gap-3">
-                <button
-                  type="button"
-                  onClick={() => setRole('user')}
-                  className={`p-3 rounded-xl border text-center transition-all ${
-                    role === 'user'
-                      ? 'border-primary bg-primary/10 text-primary shadow'
-                      : 'border-white/10 bg-white/5 text-gray-400 hover:text-white'
-                  }`}
-                >
-                  <Headphones size={20} className="mx-auto mb-1" />
-                  <span className="text-xs font-bold block">Listener</span>
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() => setRole('artist')}
-                  className={`p-3 rounded-xl border text-center transition-all ${
-                    role === 'artist'
-                      ? 'border-accent bg-accent/10 text-accent shadow'
-                      : 'border-white/10 bg-white/5 text-gray-400 hover:text-white'
-                  }`}
-                >
-                  <Sparkles size={20} className="mx-auto mb-1" />
-                  <span className="text-xs font-bold block">Artist / Creator</span>
-                </button>
-              </div>
-            </div>
-          )}
-
           {error && (
             <div className="p-3 bg-red-500/15 border border-red-500/30 rounded-xl text-red-400 text-xs">
               {error}
@@ -291,29 +244,6 @@ export default function Auth({ onLogin }) {
             )}
           </button>
         </form>
-
-        {/* Instant Demo Access Options */}
-        <div className="pt-4 border-t border-white/10 space-y-2">
-          <p className="text-[11px] text-gray-400 text-center font-medium uppercase tracking-wider">
-            Quick 1-Click Demo Login
-          </p>
-          <div className="grid grid-cols-2 gap-2">
-            <button
-              onClick={() => handleDemoLogin('user')}
-              className="py-2 px-3 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-xs text-gray-200 hover:text-white flex items-center justify-center gap-1.5 transition-all"
-            >
-              <Headphones size={14} className="text-primary" />
-              <span>Listener Demo</span>
-            </button>
-            <button
-              onClick={() => handleDemoLogin('artist')}
-              className="py-2 px-3 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-xs text-gray-200 hover:text-white flex items-center justify-center gap-1.5 transition-all"
-            >
-              <Sparkles size={14} className="text-accent" />
-              <span>Artist Studio Demo</span>
-            </button>
-          </div>
-        </div>
       </div>
     </div>
   )

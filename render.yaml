@@ -1,0 +1,29 @@
+services:
+  - type: web
+    name: beatly-backend
+    runtime: node
+    rootDir: backend
+    buildCommand: npm ci --omit=dev
+    startCommand: npm start
+    healthCheckPath: /api/health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: JWT_SECRET
+        generateValue: true
+      - key: MONGO_URI
+        sync: false
+      - key: IMAGEKIT_PRIVATE_KEY
+        sync: false
+      - key: IMAGEKIT_PUBLIC_KEY
+        sync: false
+      - key: IMAGEKIT_URL_ENDPOINT
+        sync: false
+      - key: FRONTEND_URL
+        sync: false
+      - key: ARTIST_NAME
+        value: Beatly Artist
+      - key: ARTIST_EMAIL
+        sync: false
+      - key: ARTIST_PASSWORD
+        sync: false

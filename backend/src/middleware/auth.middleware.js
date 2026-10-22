@@ -18,11 +18,6 @@ const authartist = async (req, res, next) => {
       });
     }
 
-    if (token === "demo-token-artist") {
-      req.user = { _id: "660000000000000000000001", name: "Demo Artist", role: "artist" };
-      return next();
-    }
-
     const decode = jwt.verify(token, process.env.JWT_SECRET);
 
     if (decode.role !== "artist") {
@@ -34,7 +29,7 @@ const authartist = async (req, res, next) => {
     req.user = decode;
     next();
   } catch (error) {
-    return res.status(401).json({ message: "Invalid or expired token", error: error.message });
+    return res.status(401).json({ message: "Invalid or expired token" });
   }
 };
 
@@ -43,11 +38,6 @@ const authUser = async (req, res, next) => {
     const token = extractToken(req);
 
     if (!token) {
-      return next();
-    }
-
-    if (token === "demo-token-user" || token === "demo-token-artist") {
-      req.user = { role: token.includes("artist") ? "artist" : "user" };
       return next();
     }
 

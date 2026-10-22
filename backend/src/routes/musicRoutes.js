@@ -16,6 +16,10 @@ router.post(
   musicController.createmusic,
 );
 
+// fast path: browser uploads to ImageKit directly, then saves the details here
+router.get("/upload-auth", authartist, musicController.uploadauth);
+router.post("/music", authartist, musicController.savemusic);
+
 router.post("/album", authartist, musicController.getalbum);
 
 router.get("/getmusic", authUser, musicController.getallmusic);

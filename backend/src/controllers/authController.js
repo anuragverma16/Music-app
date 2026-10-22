@@ -1,109 +1,107 @@
 const User = require("../models/User");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
-const cookieparser = require("cookie-parser");
+
+const TOKEN_EXPIRY = process.env.JWT_EXPIRES_IN || "7d";
+const isProduction = process.env.NODE_ENV === "production";
+
+// frontend (Vercel) and backend (Render) live on different domains,
+// so the cookie must be SameSite=None + Secure in production
+const cookieOptions = {
+  httpOnly: true,
+  secure: isProduction,
+  sameSite: isProduction ? "none" : "lax",
+  maxAge: 7 * 24 * 60 * 60 * 1000,
+};
+
+const signToken = (user) =>
+  jwt.sign({ _id: user._id, name: user.name, role: user.role }, process.env.JWT_SECRET, {
+    expiresIn: TOKEN_EXPIRY,
+  });
+
+const publicUser = (user) => ({
+  _id: user._id,
+  name: user.name,
+  email: user.email,
+  role: user.role || "user",
+});
 
 const register = async (req, res) => {
   try {
-    const { name, email, password, role = "user" } = req.body;
+    const { name, email, password } = req.body;
 
-    if (!email || !password || !role) {
-      return res.status(400).json("All fields are required"); // in schema use required true if field is missing that give me error only not to know about what type of error so that that is required to what a error occour if field is missing
+    if (!name || !email || !password) {
+      return res.status(400).json({ message: "Name, email and password are required" });
     }
+
+    if (password.length < 6) {
+      return res.status(400).json({ message: "Password must be at least 6 characters" });
+    }
+
+    const normalizedEmail = email.trim().toLowerCase();
 
     // check email is already existing or not
-
-    const existing = await User.findOne({ email });
+    const existing = await User.findOne({ email: normalizedEmail });
     if (existing) {
-      return res.status(400).json("Email already registered");
+      return res.status(400).json({ message: "Email already registered" });
     }
 
-    // bcrypted password
     const hashpassword = await bcrypt.hash(password, 10);
 
-    // user create
     const createuser = await User.create({
-      name,
-      email,
+      name: name.trim(),
+      email: normalizedEmail,
       password: hashpassword,
-      role,
+      // sign-up always creates a listener; the artist account comes from env (see seedArtist)
+      role: "user",
     });
 
-    // validate user
-    const userrole = role == "user" ? "user" : "artist";
+    const token = signToken(createuser);
+    res.cookie("token", token, cookieOptions);
 
-    //token create at register time
-    const token = jwt.sign(
-      {
-        _id: createuser._id,
-        role: createuser.role,
-      },
-      process.env.JWT_SECRET,
-      { expiresIn: "1h" },
-    ); // token has 3 parts: header is algorithm || payload field is data || signature is standard of token
-
-    // token store in browser cookies
-    res.cookie("token", token); // small storage in browser that store token
-
-    res.status(201).json({
+    return res.status(201).json({
       message: "User created successfully!",
-      user: {
-        _id: createuser._id,
-        name: createuser.name,
-        email: createuser.email,
-        password: hashpassword,
-        role: createuser.role,
-        token: token,
-      },
+      token,
+      user: publicUser(createuser),
     });
   } catch (error) {
-    res.status(500).json({ message: "Internsl server error", error });
+    console.error("Register error:", error);
+    return res.status(500).json({ message: "Internal server error" });
   }
 };
 
-//login
-
 const login = async (req, res) => {
-  const { email, name, password } = req.body;
   try {
-    const user =await User.findOne({ $or: [{ email }, { name }] });
+    const { email, password } = req.body;
 
-    if (!user) {
-      return res.status(400).json("User not found");
+    if (!email || !password) {
+      return res.status(400).json({ message: "Email and password are required" });
     }
 
-    // compare password
-    const match =await bcrypt.compare(password, user.password);
+    const user = await User.findOne({ email: email.trim().toLowerCase() });
 
-    if (!match) {
-      return res.status(400).json("Email or password not match");
+    // same message for both cases so emails can't be enumerated
+    if (!user || !(await bcrypt.compare(password, user.password))) {
+      return res.status(400).json({ message: "Invalid email or password" });
     }
 
-    const token = jwt.sign(
-      {
-        _id: user._id,
-        role: user.role,
-      },
-      process.env.JWT_SECRET,
-      { expiresIn: "1h" },
-    );
-
-    res.cookie("token", token);
+    const token = signToken(user);
+    res.cookie("token", token, cookieOptions);
 
     return res.status(200).json({
       message: "User Login successfully!",
-      token: token,
-      user: {
-        _id: user._id,
-        name: user.name,
-        email: user.email,
-        role: user.role || "user",
-      },
+      token,
+      user: publicUser(user),
     });
-
   } catch (error) {
-    res.status(500).json({message:"Internal Server error",error})
+    console.error("Login error:", error);
+    return res.status(500).json({ message: "Internal server error" });
   }
 };
 
-module.exports = { register, login };
+const logout = (req, res) => {
+  res.clearCookie("token", { ...cookieOptions, maxAge: undefined });
+  return res.status(200).json({ message: "Logged out" });
+};
+
+module.exports = { register, login, logout };

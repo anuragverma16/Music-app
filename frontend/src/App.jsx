@@ -8,6 +8,7 @@ import Upload from './pages/Upload'
 import Layout from './components/Layout'
 import { MusicProvider } from './context/MusicContext'
 import { getToken, removeToken } from './utils/auth'
+import { authAPI } from './utils/api'
 
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false)
@@ -33,6 +34,7 @@ function App() {
   }
 
   const handleLogout = () => {
+    authAPI.logout().catch(() => {})
     setIsAuthenticated(false)
     setUserRole('user')
     removeToken()

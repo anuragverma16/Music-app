@@ -17,6 +17,21 @@ import { useMusic } from '../context/MusicContext'
 import { animateEntrance } from '../utils/animations'
 import { useNavigate } from 'react-router-dom'
 
+// Reads the track length in seconds from the local file (0 if unknown)
+const getAudioDuration = (file) =>
+  new Promise((resolve) => {
+    const url = URL.createObjectURL(file)
+    const audio = new Audio()
+    const done = (seconds) => {
+      URL.revokeObjectURL(url)
+      resolve(Number.isFinite(seconds) ? seconds : 0)
+    }
+    audio.preload = 'metadata'
+    audio.onloadedmetadata = () => done(audio.duration)
+    audio.onerror = () => done(0)
+    audio.src = url
+  })
+
 export default function Upload() {
   const { refreshTracks, playSong, tracks } = useMusic()
   const navigate = useNavigate()
@@ -110,15 +125,16 @@ export default function Upload() {
       return
     }
 
-    const formData = new FormData()
-    formData.append('music', selectedFile)
-    formData.append('title', title.trim())
-    if (artistName.trim()) formData.append('artist', artistName.trim())
-    if (album.trim()) formData.append('album', album.trim())
-    if (genre) formData.append('genre', genre)
+    const details = {
+      title: title.trim(),
+      artist: artistName.trim() || undefined,
+      album: album.trim() || undefined,
+      genre,
+      duration: await getAudioDuration(selectedFile),
+    }
 
     try {
-      const response = await musicAPI.uploadMusic(formData, (percent) => {
+      const response = await musicAPI.uploadTrack(selectedFile, details, (percent) => {
         setUploadPercent(percent)
       })
 
@@ -149,7 +165,7 @@ export default function Upload() {
     } catch (err) {
       console.error('Upload Error:', err)
       const errorMsg =
-        err.response?.data?.message || err.message || 'Upload failed. Please verify server is running.'
+        err.response?.data?.message || err.message || 'Upload failed. Please try again.'
       setError(errorMsg)
     } finally {
       setLoading(false)
@@ -303,6 +319,8 @@ export default function Upload() {
                 onChange={(e) => setGenre(e.target.value)}
                 className="w-full px-4 py-3 bg-white/5 border border-white/10 focus:border-primary rounded-xl text-white outline-none text-sm transition-all cursor-pointer"
               >
+                <option value="Punjabi" className="bg-secondary text-white">Punjabi</option>
+                <option value="Bollywood" className="bg-secondary text-white">Bollywood</option>
                 <option value="Electronic" className="bg-secondary text-white">Electronic / EDM</option>
                 <option value="Synthwave" className="bg-secondary text-white">Synthwave / Retro</option>
                 <option value="Lo-Fi" className="bg-secondary text-white">Lo-Fi / Chill</option>

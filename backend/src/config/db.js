@@ -1,14 +1,14 @@
 const mongoose = require("mongoose");
 
-const MONGODB = process.env.MONGO_URI;
-
 const connectDB = async () => {
   try {
-    await mongoose.connect(MONGODB);
+    await mongoose.connect(process.env.MONGO_URI);
     console.log("Database Connected");
   } catch (error) {
-    console.log("Database error:", error.message);
+    console.error("Database error:", error.message);
+    // exit so Render marks the deploy as failed instead of serving a broken API
+    process.exit(1);
   }
 };
 
-module.exports = connectDB ;
+module.exports = connectDB;
