@@ -59,11 +59,11 @@ export default function Explore() {
   const topResult = filteredTracks[0] || null
 
   return (
-    <div ref={pageRef} className="p-6 md:p-8 space-y-8 max-w-7xl mx-auto">
+    <div ref={pageRef} className="p-4 sm:p-6 md:p-8 space-y-7 md:space-y-8 max-w-7xl mx-auto">
       {/* Header & Big Search Field */}
       <div className="stagger-reveal space-y-4">
         <div>
-          <h1 className="text-3xl md:text-4xl font-extrabold text-white">Explore & Search</h1>
+          <h1 className="text-2xl sm:text-3xl md:text-4xl font-extrabold text-white">Search</h1>
           <p className="text-gray-400 text-sm">Find tracks, albums, genres, and artists</p>
         </div>
 
@@ -77,9 +77,8 @@ export default function Explore() {
             type="text"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="Search by song name, artist, album, or genre..."
-            className="w-full pl-12 pr-4 py-3.5 bg-secondary/60 focus:bg-secondary border border-white/10 focus:border-primary/80 rounded-2xl text-base text-white placeholder-gray-400 outline-none transition-all shadow-lg shadow-black/40"
-            autoFocus
+            placeholder="Songs, artists, albums or genres"
+            className="w-full pl-12 pr-16 py-3 sm:py-3.5 bg-secondary/60 focus:bg-secondary border border-white/10 focus:border-primary/80 rounded-xl sm:rounded-2xl text-base text-white placeholder-gray-400 outline-none transition-all shadow-lg shadow-black/40"
           />
           {searchQuery && (
             <button
@@ -92,14 +91,14 @@ export default function Explore() {
         </div>
 
         {/* Genre Pill Filter Chips */}
-        <div className="flex items-center gap-2 overflow-x-auto pb-2 custom-scrollbar">
+        <div className="flex items-center gap-2 overflow-x-auto pb-1 -mx-4 px-4 sm:mx-0 sm:px-0 no-scrollbar">
           {GENRES.map((g) => (
             <button
               key={g.id}
               onClick={() => setSelectedGenre(g.id)}
               className={`px-4 py-2 rounded-full text-xs font-semibold whitespace-nowrap transition-all ${
                 selectedGenre === g.id
-                  ? 'bg-primary text-black shadow-md shadow-primary/20 scale-105'
+                  ? 'bg-primary text-black shadow-md shadow-primary/20'
                   : 'bg-white/5 hover:bg-white/10 text-gray-300 border border-white/10'
               }`}
             >
@@ -112,7 +111,7 @@ export default function Explore() {
       {/* If Search Query is Active: Show Top Result + Songs Table */}
       {searchQuery.trim().length > 0 ? (
         <div className="stagger-reveal space-y-6">
-          <h2 className="text-xl font-bold text-white">Search Results for "{searchQuery}"</h2>
+          <h2 className="text-lg sm:text-xl font-bold text-white break-words">Results for "{searchQuery}"</h2>
 
           {filteredTracks.length === 0 ? (
             <div className="text-center py-16 rounded-2xl bg-secondary/30 border border-white/5 space-y-2">
@@ -126,7 +125,7 @@ export default function Explore() {
               {topResult && (
                 <div
                   onClick={() => playSong(topResult, filteredTracks)}
-                  className="p-6 rounded-2xl bg-secondary/60 border border-white/10 hover:border-primary/50 transition-all cursor-pointer group flex flex-col justify-between"
+                  className="hidden sm:flex p-6 rounded-2xl bg-secondary/60 border border-white/10 hover:border-primary/50 transition-all cursor-pointer group flex-col justify-between"
                 >
                   <div>
                     <span className="text-xs font-bold text-gray-400 uppercase tracking-wider block mb-4">
@@ -180,16 +179,16 @@ export default function Explore() {
         <>
           {/* Genre Gradient Grid (Spotify Style) */}
           <div className="stagger-reveal space-y-4">
-            <h2 className="text-xl font-bold text-white">Browse All Categories</h2>
+            <h2 className="text-lg sm:text-xl font-bold text-white">Browse All</h2>
 
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 sm:gap-4">
               {GENRES.filter((g) => g.id !== 'all').map((g) => (
                 <div
                   key={g.id}
                   onClick={() => setSelectedGenre(g.id)}
-                  className={`relative h-28 rounded-2xl p-4 bg-gradient-to-br ${g.color} shadow-lg cursor-pointer overflow-hidden transition-all duration-300 hover:scale-105 hover:shadow-2xl group`}
+                  className={`relative h-24 sm:h-28 rounded-xl sm:rounded-2xl p-3 sm:p-4 bg-gradient-to-br ${g.color} shadow-lg cursor-pointer overflow-hidden transition-all duration-300 can-hover:hover:scale-105 active:scale-95 hover:shadow-2xl group`}
                 >
-                  <h3 className="font-extrabold text-base md:text-lg text-white leading-tight">
+                  <h3 className="font-extrabold text-sm sm:text-base md:text-lg text-white leading-tight pr-6">
                     {g.name}
                   </h3>
                   <Disc3
@@ -204,12 +203,12 @@ export default function Explore() {
           {/* All Tracks Grid */}
           <div className="stagger-reveal space-y-4 pt-4">
             <div className="flex items-center justify-between">
-              <h2 className="text-xl font-bold text-white">
+              <h2 className="text-lg sm:text-xl font-bold text-white">
                 {selectedGenre === 'all' ? 'All Songs' : `${selectedGenre} Tracks`} ({filteredTracks.length})
               </h2>
             </div>
 
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 sm:gap-4">
               {filteredTracks.map((song) => (
                 <SongCard key={song.id} song={song} queue={filteredTracks} />
               ))}

@@ -27,7 +27,7 @@ export default function Sidebar({ userRole, onCreatePlaylist }) {
   ]
 
   return (
-    <aside className="w-64 bg-black/80 backdrop-blur-xl border-r border-white/10 flex flex-col h-full select-none text-gray-300">
+    <aside className="w-60 lg:w-64 bg-black/80 backdrop-blur-xl border-r border-white/10 flex flex-col h-full select-none text-gray-300">
       {/* Brand Header */}
       <div className="p-6 pb-4 flex items-center justify-between">
         <Link to="/" className="flex items-center gap-3 group">
@@ -38,10 +38,6 @@ export default function Sidebar({ userRole, onCreatePlaylist }) {
             <span className="text-xl font-bold bg-gradient-to-r from-white via-gray-200 to-primary bg-clip-text text-transparent">
               Beatly
             </span>
-            <div className="flex items-center gap-1.5">
-              <span className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse"></span>
-              <span className="text-[10px] text-gray-400 uppercase tracking-widest font-semibold">Premium</span>
-            </div>
           </div>
         </Link>
       </div>

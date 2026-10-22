@@ -1,17 +1,6 @@
 import React, { useState } from 'react'
-import { useNavigate, useLocation } from 'react-router-dom'
-import {
-  ChevronLeft,
-  ChevronRight,
-  Search,
-  LogOut,
-  User,
-  Sparkles,
-  Volume2,
-  Shield,
-  Music2,
-  Sliders,
-} from 'lucide-react'
+import { Link, useNavigate, useLocation } from 'react-router-dom'
+import { ChevronLeft, ChevronRight, Search, LogOut, Sparkles, Music2, Disc3 } from 'lucide-react'
 import { useMusic } from '../context/MusicContext'
 
 export default function Header({ userRole, onLogout }) {
@@ -20,12 +9,20 @@ export default function Header({ userRole, onLogout }) {
   const { searchQuery, setSearchQuery } = useMusic()
   const [dropdownOpen, setDropdownOpen] = useState(false)
 
-  const isExplorePage = location.pathname === '/explore'
+  const isArtist = userRole === 'artist'
 
   return (
-    <header className="h-16 px-6 bg-dark/40 backdrop-blur-md border-b border-white/5 flex items-center justify-between sticky top-0 z-30">
-      {/* Navigation & Search */}
-      <div className="flex items-center gap-4 flex-1 max-w-xl">
+    <header className="h-14 md:h-16 px-4 md:px-6 bg-dark/40 backdrop-blur-md border-b border-white/5 flex items-center justify-between gap-3 sticky top-0 z-30 pt-safe">
+      {/* Brand (phones only — the sidebar shows it on larger screens) */}
+      <Link to="/" className="md:hidden flex items-center gap-2">
+        <div className="w-8 h-8 rounded-lg bg-gradient-to-tr from-primary via-cyan-400 to-accent flex items-center justify-center">
+          <Disc3 className="text-black w-5 h-5" />
+        </div>
+        <span className="text-lg font-bold text-white">Beatly</span>
+      </Link>
+
+      {/* Navigation & Search (tablet/desktop) */}
+      <div className="hidden md:flex items-center gap-4 flex-1 max-w-xl">
         <div className="flex items-center gap-2">
           <button
             onClick={() => navigate(-1)}
@@ -43,7 +40,6 @@ export default function Header({ userRole, onLogout }) {
           </button>
         </div>
 
-        {/* Global Search Bar (focused on Explore or triggers navigation) */}
         <div className="relative flex-1 max-w-md">
           <Search
             size={18}
@@ -66,15 +62,15 @@ export default function Header({ userRole, onLogout }) {
 
       {/* Right Controls / User Profile */}
       <div className="flex items-center gap-3">
-        {userRole === 'artist' ? (
-          <span className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-accent/15 border border-accent/30 text-accent text-xs font-semibold">
+        {isArtist ? (
+          <span className="hidden lg:inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-accent/15 border border-accent/30 text-accent text-xs font-semibold">
             <Sparkles size={13} />
-            Artist Account
+            Artist
           </span>
         ) : (
-          <span className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-primary/10 border border-primary/20 text-primary text-xs font-semibold">
+          <span className="hidden lg:inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-primary/10 border border-primary/20 text-primary text-xs font-semibold">
             <Music2 size={13} />
-            Free Listener
+            Listener
           </span>
         )}
 
@@ -82,29 +78,25 @@ export default function Header({ userRole, onLogout }) {
         <div className="relative">
           <button
             onClick={() => setDropdownOpen((prev) => !prev)}
-            className="flex items-center gap-2 p-1.5 pr-3 rounded-full bg-white/5 hover:bg-white/10 border border-white/10 transition-all group"
+            className="flex items-center gap-2 p-1 md:p-1.5 md:pr-3 rounded-full bg-white/5 hover:bg-white/10 border border-white/10 transition-all group"
+            aria-label="Account menu"
           >
             <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-primary to-accent flex items-center justify-center text-black font-bold text-xs shadow">
-              {userRole === 'artist' ? 'A' : 'U'}
+              {isArtist ? 'A' : 'L'}
             </div>
-            <span className="text-sm font-medium text-gray-200 group-hover:text-white capitalize">
-              {userRole || 'User'}
+            <span className="hidden md:inline text-sm font-medium text-gray-200 group-hover:text-white">
+              {isArtist ? 'Artist' : 'Listener'}
             </span>
           </button>
 
           {dropdownOpen && (
             <>
-              <div
-                className="fixed inset-0 z-40"
-                onClick={() => setDropdownOpen(false)}
-              ></div>
+              <div className="fixed inset-0 z-40" onClick={() => setDropdownOpen(false)}></div>
               <div className="absolute right-0 mt-2 w-56 rounded-2xl bg-secondary/95 border border-white/10 backdrop-blur-xl shadow-2xl p-2 z-50 animate-fade-in text-sm text-gray-200">
                 <div className="p-3 border-b border-white/10 mb-1">
-                  <p className="font-semibold text-white">Signed in as</p>
-                  <p className="text-xs text-primary font-medium">{userRole === 'artist' ? 'Verified Artist' : 'Standard User'}</p>
+                  <p className="text-xs text-gray-400">Signed in as</p>
+                  <p className="font-semibold text-white">{isArtist ? 'Artist' : 'Listener'}</p>
                 </div>
-
-                <div className="px-2 py-1.5 text-xs text-gray-400">Audio: Lossless (320kbps)</div>
 
                 <button
                   onClick={() => {

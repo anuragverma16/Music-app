@@ -29,7 +29,7 @@ export default function CreatePlaylistModal({ isOpen, onClose }) {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-md animate-fade-in">
-      <div className="w-full max-w-md bg-secondary/95 backdrop-blur-xl border border-white/10 rounded-3xl p-6 shadow-2xl space-y-6">
+      <div className="w-full max-w-md bg-secondary/95 backdrop-blur-xl border border-white/10 rounded-3xl p-5 sm:p-6 shadow-2xl space-y-6">
         {/* Header */}
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
@@ -84,7 +84,7 @@ export default function CreatePlaylistModal({ isOpen, onClose }) {
             <label className="block text-xs font-semibold text-gray-300 uppercase tracking-wider mb-2">
               Theme Accent Color
             </label>
-            <div className="flex items-center gap-3">
+            <div className="flex flex-wrap items-center gap-3">
               {COLORS.map((col) => (
                 <button
                   type="button"

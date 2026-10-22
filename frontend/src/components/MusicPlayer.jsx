@@ -13,7 +13,6 @@ import {
   ListMusic,
   Mic2,
   Maximize2,
-  Disc3,
 } from 'lucide-react'
 import { useMusic } from '../context/MusicContext'
 import { popHeart } from '../utils/animations'
@@ -78,13 +77,21 @@ export default function MusicPlayer() {
   }
 
   return (
-    <footer className="h-24 bg-dark/95 backdrop-blur-2xl border-t border-white/10 px-4 md:px-6 flex items-center justify-between z-40 select-none shadow-2xl relative">
-      {/* 1. Track Info (Left) */}
-      <div className="flex items-center gap-3.5 w-1/4 min-w-[180px] max-w-[280px]">
-        {/* Album Artwork & Rotating Vinyl Badge */}
+    <footer className="h-16 md:h-24 bg-dark/95 backdrop-blur-2xl border-t border-white/10 px-3 md:px-6 flex items-center justify-between gap-3 z-40 select-none shadow-2xl relative">
+      {/* Thin progress line (phones) */}
+      <div className="md:hidden absolute top-0 left-0 right-0 h-0.5 bg-white/10">
+        <div className="h-full bg-primary" style={{ width: `${progressPercent}%` }} />
+      </div>
+
+      {/* 1. Track Info (Left) — on phones, tapping opens the full player */}
+      <div
+        onClick={() => window.matchMedia('(max-width: 767px)').matches && setIsFullscreenPlayer(true)}
+        className="flex items-center gap-3 flex-1 min-w-0 md:flex-none md:w-1/4 md:min-w-[180px] md:max-w-[280px]"
+      >
+        {/* Album Artwork */}
         <div
           onClick={() => setIsFullscreenPlayer(true)}
-          className="relative group cursor-pointer w-14 h-14 rounded-xl overflow-hidden shadow-md flex-shrink-0"
+          className="relative group cursor-pointer w-11 h-11 md:w-14 md:h-14 rounded-lg md:rounded-xl overflow-hidden shadow-md flex-shrink-0"
         >
           <img
             src={
@@ -117,20 +124,35 @@ export default function MusicPlayer() {
         {/* Like Button */}
         <button
           ref={heartRef}
-          onClick={handleLike}
-          className={`p-2 rounded-full transition-transform active:scale-90 ${
+          onClick={(e) => {
+            e.stopPropagation()
+            handleLike()
+          }}
+          className={`p-2 rounded-full transition-transform active:scale-90 flex-shrink-0 ${
             liked ? 'text-accent' : 'text-gray-400 hover:text-white'
           }`}
           title={liked ? 'Remove from Liked Songs' : 'Save to Liked Songs'}
         >
           <Heart size={18} fill={liked ? 'currentColor' : 'none'} />
         </button>
+
+        {/* Play / Pause (phones) */}
+        <button
+          onClick={(e) => {
+            e.stopPropagation()
+            togglePlay()
+          }}
+          className="md:hidden w-10 h-10 rounded-full bg-white text-black flex items-center justify-center flex-shrink-0 active:scale-90 transition-transform"
+          aria-label={isPlaying ? 'Pause' : 'Play'}
+        >
+          {isPlaying ? <Pause size={18} fill="currentColor" /> : <Play size={18} fill="currentColor" className="ml-0.5" />}
+        </button>
       </div>
 
       {/* 2. Main Playback Controls & Progress Bar (Center) */}
-      <div className="flex flex-col items-center justify-center flex-1 max-w-2xl px-4">
+      <div className="hidden md:flex flex-col items-center justify-center flex-1 max-w-2xl px-2 lg:px-4">
         {/* Buttons Row */}
-        <div className="flex items-center gap-5 mb-1.5">
+        <div className="flex items-center gap-4 lg:gap-5 mb-1.5">
           {/* Shuffle */}
           <button
             onClick={toggleShuffle}
@@ -224,7 +246,7 @@ export default function MusicPlayer() {
       </div>
 
       {/* 3. Extra Tools & Volume Control (Right) */}
-      <div className="flex items-center justify-end gap-3 w-1/4 min-w-[180px]">
+      <div className="hidden md:flex items-center justify-end gap-1 lg:gap-3 lg:w-1/4 lg:min-w-[180px]">
         {/* Lyrics Button */}
         <button
           onClick={() => setShowLyrics((prev) => !prev)}
@@ -248,7 +270,7 @@ export default function MusicPlayer() {
         </button>
 
         {/* Volume Control */}
-        <div className="flex items-center gap-2 group">
+        <div className="hidden lg:flex items-center gap-2 group">
           <button
             onClick={toggleMute}
             className="text-gray-400 hover:text-white transition-colors"

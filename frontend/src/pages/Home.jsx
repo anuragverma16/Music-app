@@ -18,7 +18,7 @@ import SongCard from '../components/SongCard'
 import { animateEntrance } from '../utils/animations'
 import { useNavigate } from 'react-router-dom'
 
-export default function Home() {
+export default function Home({ userRole }) {
   const { tracks, loadingTracks, currentSong, isPlaying, playSong, togglePlay } = useMusic()
   const pageRef = useRef(null)
   const navigate = useNavigate()
@@ -56,14 +56,14 @@ export default function Home() {
   const trendingTracks = tracks.slice(0, 10)
 
   return (
-    <div ref={pageRef} className="p-6 md:p-8 space-y-10 max-w-7xl mx-auto">
+    <div ref={pageRef} className="p-4 sm:p-6 md:p-8 space-y-8 md:space-y-10 max-w-7xl mx-auto">
       {/* 1. Header Greeting & Hero Spotlight */}
       <div className="stagger-reveal">
         <div className="flex items-center justify-between mb-4">
-          <h1 className="text-3xl md:text-4xl font-extrabold text-white tracking-tight">
+          <h1 className="text-2xl sm:text-3xl md:text-4xl font-extrabold text-white tracking-tight">
             {getGreeting()}
           </h1>
-          <div className="flex items-center gap-2 text-xs font-semibold text-primary bg-primary/10 px-3 py-1.5 rounded-full border border-primary/20">
+          <div className="hidden sm:flex items-center gap-2 text-xs font-semibold text-primary bg-primary/10 px-3 py-1.5 rounded-full border border-primary/20">
             <Sparkles size={14} />
             <span>Discover Real Sound</span>
           </div>
@@ -71,25 +71,25 @@ export default function Home() {
 
         {/* Hero Spotlight Banner */}
         {spotlightTrack ? (
-          <div className="relative rounded-3xl overflow-hidden bg-gradient-to-r from-cyan-900/60 via-secondary/80 to-purple-900/40 border border-white/10 p-6 md:p-8 backdrop-blur-xl shadow-2xl flex flex-col md:flex-row items-center justify-between gap-6 group">
+          <div className="relative rounded-2xl sm:rounded-3xl overflow-hidden bg-gradient-to-r from-cyan-900/60 via-secondary/80 to-purple-900/40 border border-white/10 p-5 sm:p-6 md:p-8 backdrop-blur-xl shadow-2xl flex flex-col-reverse md:flex-row items-start md:items-center justify-between gap-5 md:gap-6 group">
             {/* Ambient Back Glow */}
             <div
               className="absolute -right-10 -top-10 w-80 h-80 rounded-full blur-[100px] opacity-40 pointer-events-none"
               style={{ backgroundColor: spotlightTrack.color || '#00d4ff' }}
             />
 
-            <div className="space-y-3 max-w-xl z-10">
+            <div className="space-y-3 w-full md:max-w-xl min-w-0 z-10">
               <span className="px-3 py-1 rounded-full bg-primary/20 border border-primary/40 text-primary text-xs font-bold uppercase tracking-wider">
                 Featured Release
               </span>
-              <h2 className="text-3xl md:text-5xl font-black text-white leading-tight">
+              <h2 className="text-2xl sm:text-3xl md:text-5xl font-black text-white leading-tight break-words">
                 {spotlightTrack.title}
               </h2>
               <p className="text-gray-300 text-sm md:text-base leading-relaxed line-clamp-2">
-                By {spotlightTrack.artistName || spotlightTrack.artist?.name}. Stream high-definition audio uploaded directly by creators.
+                By {spotlightTrack.artistName || spotlightTrack.artist?.name}
               </p>
 
-              <div className="flex items-center gap-4 pt-2">
+              <div className="flex flex-wrap items-center gap-3 pt-2">
                 <button
                   onClick={() => playSong(spotlightTrack, tracks)}
                   className="btn-primary flex items-center gap-2 shadow-lg shadow-primary/30"
@@ -99,7 +99,7 @@ export default function Home() {
                 </button>
                 <button
                   onClick={() => navigate('/explore')}
-                  className="px-5 py-3 rounded-lg bg-white/10 hover:bg-white/15 border border-white/10 text-white font-medium text-sm transition-all"
+                  className="px-4 sm:px-5 py-3 rounded-xl bg-white/10 hover:bg-white/15 border border-white/10 text-white font-medium text-sm transition-all"
                 >
                   Explore All Tracks
                 </button>
@@ -107,7 +107,7 @@ export default function Home() {
             </div>
 
             {/* Hero Track Artwork */}
-            <div className="relative w-48 h-48 md:w-56 md:h-56 rounded-2xl overflow-hidden shadow-2xl flex-shrink-0 group-hover:scale-105 transition-transform duration-500">
+            <div className="relative w-32 h-32 sm:w-44 sm:h-44 md:w-56 md:h-56 rounded-xl sm:rounded-2xl overflow-hidden shadow-2xl flex-shrink-0 group-hover:scale-105 transition-transform duration-500">
               <img
                 src={spotlightTrack.coverUrl}
                 alt={spotlightTrack.title}
@@ -120,15 +120,23 @@ export default function Home() {
           <div className="p-8 rounded-3xl bg-secondary/30 border border-white/10 text-center space-y-4">
             <Music2 size={48} className="mx-auto text-primary opacity-80" />
             <h3 className="text-xl font-bold text-white">No tracks uploaded yet</h3>
-            <p className="text-sm text-gray-400 max-w-md mx-auto">
-              Be the first artist to publish music! Head over to Artist Studio to upload your songs.
-            </p>
-            <button
-              onClick={() => navigate('/upload')}
-              className="btn-primary inline-flex items-center gap-2 text-sm"
-            >
-              <Upload size={16} /> Go to Artist Studio
-            </button>
+            {userRole === 'artist' ? (
+              <>
+                <p className="text-sm text-gray-400 max-w-md mx-auto">
+                  Publish your first song from Artist Studio.
+                </p>
+                <button
+                  onClick={() => navigate('/upload')}
+                  className="btn-primary inline-flex items-center gap-2 text-sm"
+                >
+                  <Upload size={16} /> Go to Artist Studio
+                </button>
+              </>
+            ) : (
+              <p className="text-sm text-gray-400 max-w-md mx-auto">
+                New music is on the way. Check back soon!
+              </p>
+            )}
           </div>
         )}
       </div>
@@ -136,37 +144,37 @@ export default function Home() {
       {/* 2. Quick Play Grid */}
       {quickTracks.length > 0 && (
         <div className="stagger-reveal space-y-3">
-          <h2 className="text-xl font-bold text-white flex items-center gap-2">
+          <h2 className="text-lg sm:text-xl font-bold text-white flex items-center gap-2">
             <Clock size={18} className="text-primary" />
             Jump Back In
           </h2>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+          <div className="grid grid-cols-2 lg:grid-cols-3 gap-2 sm:gap-3">
             {quickTracks.map((song) => {
               const isCurrent = (currentSong?.id || currentSong?._id) === (song.id || song._id)
               return (
                 <div
                   key={song.id}
                   onClick={() => playSong(song, tracks)}
-                  className={`group flex items-center gap-3.5 p-2 pr-4 rounded-xl bg-white/5 hover:bg-white/10 border border-white/5 hover:border-primary/40 backdrop-blur-md transition-all duration-200 cursor-pointer ${
+                  className={`group flex items-center gap-2.5 sm:gap-3.5 p-1.5 sm:p-2 pr-2 sm:pr-4 rounded-lg sm:rounded-xl bg-white/5 hover:bg-white/10 border border-white/5 hover:border-primary/40 backdrop-blur-md transition-all duration-200 cursor-pointer ${
                     isCurrent ? 'bg-white/10 border-primary/50' : ''
                   }`}
                 >
                   <img
                     src={song.coverUrl}
                     alt={song.title}
-                    className="w-14 h-14 rounded-lg object-cover shadow flex-shrink-0"
+                    className="w-11 h-11 sm:w-14 sm:h-14 rounded-md sm:rounded-lg object-cover shadow flex-shrink-0"
                   />
                   <div className="min-w-0 flex-1">
-                    <p className="font-semibold text-sm text-white truncate group-hover:text-primary transition-colors">
+                    <p className="font-semibold text-xs sm:text-sm text-white truncate group-hover:text-primary transition-colors">
                       {song.title}
                     </p>
-                    <p className="text-xs text-gray-400 truncate">
+                    <p className="text-[11px] sm:text-xs text-gray-400 truncate">
                       {song.artistName || song.artist?.name}
                     </p>
                   </div>
                   <button
-                    className={`w-10 h-10 rounded-full bg-primary text-black flex items-center justify-center shadow-lg shadow-primary/20 transition-all ${
+                    className={`hidden sm:flex w-10 h-10 rounded-full bg-primary text-black items-center justify-center shadow-lg shadow-primary/20 transition-all ${
                       isCurrent && isPlaying
                         ? 'opacity-100 scale-100'
                         : 'opacity-0 scale-75 group-hover:opacity-100 group-hover:scale-100'
@@ -189,7 +197,7 @@ export default function Home() {
       {trendingTracks.length > 0 && (
         <div className="stagger-reveal space-y-4">
           <div className="flex items-center justify-between">
-            <h2 className="text-2xl font-bold text-white flex items-center gap-2">
+            <h2 className="text-lg sm:text-2xl font-bold text-white flex items-center gap-2">
               <Flame size={22} className="text-accent" />
               Latest Released Music
             </h2>
@@ -201,7 +209,7 @@ export default function Home() {
             </button>
           </div>
 
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 sm:gap-4">
             {trendingTracks.map((song) => (
               <SongCard key={song.id} song={song} queue={tracks} />
             ))}
@@ -212,16 +220,16 @@ export default function Home() {
       {/* 4. Real Artists Section */}
       {dynamicArtists.length > 0 && (
         <div className="stagger-reveal space-y-4">
-          <h2 className="text-2xl font-bold text-white">Featured Artists</h2>
+          <h2 className="text-lg sm:text-2xl font-bold text-white">Featured Artists</h2>
 
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4">
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 xl:grid-cols-5 gap-3 sm:gap-4">
             {dynamicArtists.map((artist) => (
               <div
                 key={artist.id}
                 onClick={() => navigate('/explore')}
-                className="group p-4 rounded-2xl bg-secondary/30 hover:bg-secondary/60 border border-white/5 hover:border-white/20 transition-all text-center cursor-pointer"
+                className="group p-3 sm:p-4 rounded-xl sm:rounded-2xl bg-secondary/30 hover:bg-secondary/60 border border-white/5 hover:border-white/20 transition-all text-center cursor-pointer"
               >
-                <div className="w-24 h-24 sm:w-28 sm:h-28 mx-auto rounded-full overflow-hidden mb-3 shadow-lg border-2 border-transparent group-hover:border-primary transition-all">
+                <div className="w-20 h-20 sm:w-28 sm:h-28 mx-auto rounded-full overflow-hidden mb-3 shadow-lg border-2 border-transparent group-hover:border-primary transition-all">
                   <img
                     src={artist.coverUrl}
                     alt={artist.name}

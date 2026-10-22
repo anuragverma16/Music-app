@@ -48,7 +48,7 @@ export default function Upload() {
   const [title, setTitle] = useState('')
   const [artistName, setArtistName] = useState('')
   const [album, setAlbum] = useState('')
-  const [genre, setGenre] = useState('Electronic')
+  const [genre, setGenre] = useState('Punjabi')
   const [selectedFile, setSelectedFile] = useState(null)
   const [previewAudioUrl, setPreviewAudioUrl] = useState(null)
   const [isPreviewPlaying, setIsPreviewPlaying] = useState(false)
@@ -173,25 +173,25 @@ export default function Upload() {
   }
 
   return (
-    <div ref={pageRef} className="p-6 md:p-8 max-w-5xl mx-auto space-y-8">
+    <div ref={pageRef} className="p-4 sm:p-6 md:p-8 max-w-5xl mx-auto space-y-6 md:space-y-8">
       {/* Header */}
       <div className="stagger-reveal">
         <div className="flex items-center gap-2 text-accent text-xs font-bold uppercase tracking-wider mb-1">
           <Sparkles size={14} />
           <span>Creator Studio</span>
         </div>
-        <h1 className="text-3xl md:text-4xl font-extrabold text-white">Upload Your Music</h1>
+        <h1 className="text-2xl sm:text-3xl md:text-4xl font-extrabold text-white">Upload Your Music</h1>
         <p className="text-gray-400 text-sm mt-1">
-          Stream your tracks on Beatly with fast ImageKit audio delivery.
+          Publish your tracks to Beatly listeners.
         </p>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8">
         {/* Form Column */}
         <form
           ref={formRef}
           onSubmit={handleSubmit}
-          className="lg:col-span-2 stagger-reveal space-y-6 bg-secondary/40 backdrop-blur-xl border border-white/10 rounded-3xl p-6 md:p-8 shadow-2xl"
+          className="lg:col-span-2 stagger-reveal space-y-6 bg-secondary/40 backdrop-blur-xl border border-white/10 rounded-2xl sm:rounded-3xl p-4 sm:p-6 md:p-8 shadow-2xl"
         >
           {/* File Upload Drag & Drop Area */}
           <div className="space-y-2">
@@ -205,7 +205,7 @@ export default function Upload() {
               onDragOver={handleDrag}
               onDrop={handleDrop}
               onClick={() => document.getElementById('music-file-input').click()}
-              className={`border-2 border-dashed rounded-2xl p-8 text-center transition-all duration-300 cursor-pointer ${
+              className={`border-2 border-dashed rounded-2xl p-6 sm:p-8 text-center transition-all duration-300 cursor-pointer ${
                 dragActive
                   ? 'border-primary bg-primary/10 scale-[1.01]'
                   : selectedFile
@@ -228,9 +228,9 @@ export default function Upload() {
                     <FileAudio size={28} />
                   </div>
                   <div>
-                    <p className="text-white font-bold text-sm truncate max-w-xs">{selectedFile.name}</p>
+                    <p className="text-white font-bold text-sm truncate max-w-[15rem] sm:max-w-xs">{selectedFile.name}</p>
                     <p className="text-xs text-primary mt-0.5">
-                      {(selectedFile.size / (1024 * 1024)).toFixed(2)} MB • Ready for processing
+                      {(selectedFile.size / (1024 * 1024)).toFixed(2)} MB • Ready to upload
                     </p>
                   </div>
                   {previewAudioUrl && (
@@ -255,8 +255,11 @@ export default function Upload() {
                       dragActive ? 'text-primary' : 'text-gray-400'
                     }`}
                   />
-                  <p className="text-white font-semibold text-sm">Drag & drop your audio track here</p>
-                  <p className="text-xs text-gray-400 mt-1">or click to browse audio files</p>
+                  <p className="text-white font-semibold text-sm">
+                    <span className="hidden md:inline">Drag & drop your audio track here</span>
+                    <span className="md:hidden">Tap to choose an audio file</span>
+                  </p>
+                  <p className="hidden md:block text-xs text-gray-400 mt-1">or click to browse audio files</p>
                 </div>
               )}
             </div>
@@ -337,7 +340,7 @@ export default function Upload() {
           {loading && (
             <div className="space-y-2 p-4 bg-white/5 rounded-2xl border border-white/10">
               <div className="flex items-center justify-between text-xs text-gray-300 font-medium">
-                <span>Uploading audio to CDN...</span>
+                <span>Uploading…</span>
                 <span className="text-primary font-bold">{uploadPercent}%</span>
               </div>
               <div className="w-full h-2 bg-white/10 rounded-full overflow-hidden">
@@ -360,7 +363,7 @@ export default function Upload() {
           {success && (
             <div className="success-badge p-4 bg-green-500/15 border border-green-500/30 rounded-xl text-green-400 text-sm flex items-center gap-2.5">
               <CheckCircle size={18} className="flex-shrink-0" />
-              <span>Song uploaded successfully! Redirecting to Home...</span>
+              <span>Song published! Redirecting to Home…</span>
             </div>
           )}
 
@@ -378,16 +381,16 @@ export default function Upload() {
             ) : (
               <>
                 <UploadCloud size={20} />
-                <span>Publish Track Now</span>
+                <span>Publish Track</span>
               </>
             )}
           </button>
         </form>
 
-        {/* Live Preview Card Column */}
-        <div className="stagger-reveal space-y-4">
+        {/* Live Preview Card Column (desktop) */}
+        <div className="hidden lg:block stagger-reveal space-y-4">
           <span className="text-xs font-bold text-gray-400 uppercase tracking-wider block">
-            Live Stream Card
+            Preview
           </span>
 
           <div className="p-5 rounded-3xl bg-secondary/50 border border-white/10 shadow-xl space-y-4">
@@ -409,11 +412,6 @@ export default function Upload() {
               <p className="text-xs text-gray-400 truncate mt-0.5">
                 {artistName || 'Artist Name'} • {album || 'Single'}
               </p>
-            </div>
-
-            <div className="pt-3 border-t border-white/10 text-xs text-gray-500 flex items-center justify-between">
-              <span>Streaming CDN: ImageKit</span>
-              <span className="text-primary font-medium">Lossless Audio</span>
             </div>
           </div>
         </div>

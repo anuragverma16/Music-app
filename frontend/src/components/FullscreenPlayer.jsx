@@ -66,14 +66,9 @@ export default function FullscreenPlayer() {
   }
 
   // Parse lyrics
-  const rawLyrics = currentSong.lyrics || `[00:05] Instrumental Intro
-[00:15] Lost in the rhythm of the neon lights
-[00:25] Chasing the melody through endless nights
-[00:35] Feel the vibration, let your spirit fly
-[00:48] Underneath the starlight in the velvet sky
-[01:00] Beatly streams your heartbeat every second of the day`
+  const rawLyrics = (currentSong.lyrics || '').trim()
 
-  const lines = rawLyrics.split('\n').map((line, idx) => {
+  const lines = (rawLyrics ? rawLyrics.split('\n') : []).map((line, idx) => {
     const match = line.match(/\[(\d+):(\d+)\]\s*(.*)/)
     if (match) {
       const minutes = parseInt(match[1], 10)
@@ -89,7 +84,7 @@ export default function FullscreenPlayer() {
   }
 
   return (
-    <div className="fixed inset-0 z-50 bg-black flex flex-col justify-between p-6 md:p-12 overflow-hidden select-none animate-fade-in">
+    <div className="fixed inset-0 z-50 bg-black flex flex-col justify-between px-5 pt-safe pb-safe md:p-12 overflow-hidden select-none animate-fade-in">
       {/* Ambient Pulsing Background Glows */}
       <div
         className="absolute top-1/4 left-1/4 w-[600px] h-[600px] rounded-full blur-[160px] opacity-30 pointer-events-none transition-all duration-1000"
@@ -98,11 +93,11 @@ export default function FullscreenPlayer() {
       <div className="absolute bottom-1/4 right-1/4 w-[500px] h-[500px] rounded-full blur-[180px] opacity-25 bg-accent pointer-events-none" />
 
       {/* Top Bar */}
-      <div className="flex items-center justify-between z-10">
-        <div className="flex items-center gap-3">
+      <div className="flex items-center justify-between z-10 pt-4 md:pt-0">
+        <div className="flex items-center gap-2 md:gap-3">
           <button
             onClick={() => setActiveTab('vinyl')}
-            className={`px-4 py-2 rounded-full text-xs font-semibold uppercase tracking-wider transition-all ${
+            className={`px-3.5 md:px-4 py-2 rounded-full text-xs font-semibold uppercase tracking-wider transition-all ${
               activeTab === 'vinyl'
                 ? 'bg-white text-black shadow'
                 : 'text-gray-400 hover:text-white hover:bg-white/10'
@@ -112,7 +107,7 @@ export default function FullscreenPlayer() {
           </button>
           <button
             onClick={() => setActiveTab('lyrics')}
-            className={`px-4 py-2 rounded-full text-xs font-semibold uppercase tracking-wider transition-all flex items-center gap-1.5 ${
+            className={`px-3.5 md:px-4 py-2 rounded-full text-xs font-semibold uppercase tracking-wider transition-all flex items-center gap-1.5 ${
               activeTab === 'lyrics'
                 ? 'bg-white text-black shadow'
                 : 'text-gray-400 hover:text-white hover:bg-white/10'
@@ -132,11 +127,11 @@ export default function FullscreenPlayer() {
       </div>
 
       {/* Center Stage: Vinyl Visualizer or Live Lyrics */}
-      <div className="flex-1 flex items-center justify-center my-6 z-10 overflow-hidden">
+      <div className="flex-1 min-h-0 flex items-center justify-center my-4 md:my-6 z-10 overflow-hidden">
         {activeTab === 'vinyl' ? (
           <div className="flex flex-col items-center">
             {/* Giant Spinning Vinyl Record */}
-            <div className="relative w-64 h-64 sm:w-80 sm:h-80 md:w-96 md:h-96 rounded-full bg-black/80 border-4 border-gray-800 shadow-2xl flex items-center justify-center p-3">
+            <div className="relative w-[min(72vw,42vh)] h-[min(72vw,42vh)] md:w-[min(24rem,45vh)] md:h-[min(24rem,45vh)] rounded-full bg-black/80 border-4 border-gray-800 shadow-2xl flex items-center justify-center p-3">
               {/* Vinyl Groove Rings */}
               <div className="absolute inset-4 rounded-full border border-white/5 pointer-events-none" />
               <div className="absolute inset-8 rounded-full border border-white/5 pointer-events-none" />
@@ -145,7 +140,7 @@ export default function FullscreenPlayer() {
 
               {/* Artwork Center Disc */}
               <div
-                className={`w-36 h-36 sm:w-48 sm:h-48 rounded-full overflow-hidden border-4 border-black shadow-inner ${
+                className={`w-1/2 h-1/2 rounded-full overflow-hidden border-4 border-black shadow-inner ${
                   isPlaying ? 'animate-spin-slow' : ''
                 }`}
               >
@@ -161,7 +156,7 @@ export default function FullscreenPlayer() {
             </div>
 
             {/* Audio Waveform Equalizer Bars */}
-            <div className="flex items-center gap-1.5 mt-8 h-10">
+            <div className="flex items-center gap-1.5 mt-6 md:mt-8 h-8 md:h-10">
               {[40, 65, 85, 45, 95, 70, 50, 80, 100, 60, 45, 75, 90, 55, 35].map(
                 (h, idx) => (
                   <div
@@ -177,7 +172,10 @@ export default function FullscreenPlayer() {
             </div>
           </div>
         ) : (
-          <div className="w-full max-w-2xl h-full overflow-y-auto space-y-6 text-center custom-scrollbar px-4 flex flex-col justify-center">
+          <div className="w-full max-w-2xl h-full overflow-y-auto space-y-6 text-center custom-scrollbar px-2 md:px-4 flex flex-col justify-center">
+            {lines.length === 0 && (
+              <p className="text-lg text-gray-500">Lyrics aren’t available for this song.</p>
+            )}
             {lines.map((item, idx) => {
               const isActive = idx === activeLineIdx
               return (
@@ -185,8 +183,8 @@ export default function FullscreenPlayer() {
                   key={item.id}
                   className={`transition-all duration-300 font-bold ${
                     isActive
-                      ? 'text-3xl sm:text-4xl text-primary scale-105 drop-shadow-[0_0_15px_rgba(0,212,255,0.6)]'
-                      : 'text-xl sm:text-2xl text-gray-500 opacity-50'
+                      ? 'text-2xl sm:text-4xl text-primary scale-105 drop-shadow-[0_0_15px_rgba(0,212,255,0.6)]'
+                      : 'text-lg sm:text-2xl text-gray-500 opacity-50'
                   }`}
                 >
                   {item.text}
@@ -198,12 +196,12 @@ export default function FullscreenPlayer() {
       </div>
 
       {/* Bottom Controls Area */}
-      <div className="w-full max-w-3xl mx-auto space-y-6 z-10">
+      <div className="w-full max-w-3xl mx-auto space-y-5 md:space-y-6 z-10 pb-6 md:pb-0">
         {/* Track Title & Like */}
-        <div className="flex items-center justify-between">
-          <div>
-            <h2 className="text-2xl sm:text-3xl font-extrabold text-white">{currentSong.title}</h2>
-            <p className="text-base sm:text-lg text-gray-400 mt-0.5">
+        <div className="flex items-center justify-between gap-4">
+          <div className="min-w-0">
+            <h2 className="text-xl sm:text-3xl font-extrabold text-white truncate">{currentSong.title}</h2>
+            <p className="text-sm sm:text-lg text-gray-400 mt-0.5 truncate">
               {currentSong.artistName || currentSong.artist?.name} • {currentSong.album || 'Single'}
             </p>
           </div>
@@ -211,7 +209,7 @@ export default function FullscreenPlayer() {
           <button
             ref={heartRef}
             onClick={handleLike}
-            className={`p-3 rounded-full bg-white/5 hover:bg-white/10 transition-transform active:scale-90 ${
+            className={`p-3 rounded-full bg-white/5 hover:bg-white/10 transition-transform active:scale-90 flex-shrink-0 ${
               liked ? 'text-accent' : 'text-gray-400 hover:text-white'
             }`}
           >
@@ -248,7 +246,7 @@ export default function FullscreenPlayer() {
             <Shuffle size={22} />
           </button>
 
-          <div className="flex items-center gap-8">
+          <div className="flex items-center gap-6 md:gap-8">
             <button
               onClick={playPrev}
               className="text-gray-300 hover:text-white transition-transform active:scale-90"

@@ -63,19 +63,19 @@ export default function Library() {
     : []
 
   return (
-    <div ref={pageRef} className="p-6 md:p-8 space-y-8 max-w-7xl mx-auto">
+    <div ref={pageRef} className="p-4 sm:p-6 md:p-8 space-y-7 md:space-y-8 max-w-7xl mx-auto">
       {/* If a custom Playlist is selected: show playlist detail view */}
       {selectedPlaylist ? (
         <div className="space-y-6 stagger-reveal">
           {/* Playlist Hero Banner */}
           <div
-            className="p-8 rounded-3xl border border-white/10 flex flex-col md:flex-row items-start md:items-end gap-6 relative overflow-hidden"
+            className="p-5 sm:p-8 rounded-2xl sm:rounded-3xl border border-white/10 flex flex-col md:flex-row items-start md:items-end gap-5 sm:gap-6 relative overflow-hidden"
             style={{
               background: `linear-gradient(135deg, ${selectedPlaylist.color}33 0%, rgba(15, 12, 41, 0.9) 100%)`,
             }}
           >
             <div
-              className="w-44 h-44 rounded-2xl flex items-center justify-center text-white shadow-2xl flex-shrink-0"
+              className="w-32 h-32 sm:w-44 sm:h-44 rounded-xl sm:rounded-2xl flex items-center justify-center text-white shadow-2xl flex-shrink-0"
               style={{ backgroundColor: selectedPlaylist.color }}
             >
               <ListMusic size={64} />
@@ -85,7 +85,7 @@ export default function Library() {
               <span className="text-xs font-bold uppercase tracking-wider text-gray-300">
                 Custom Playlist
               </span>
-              <h1 className="text-3xl md:text-5xl font-extrabold text-white truncate">
+              <h1 className="text-2xl sm:text-3xl md:text-5xl font-extrabold text-white truncate">
                 {selectedPlaylist.title}
               </h1>
               <p className="text-sm text-gray-300">
@@ -142,7 +142,7 @@ export default function Library() {
               <div className="text-center py-16 rounded-2xl bg-secondary/30 border border-white/5 space-y-2">
                 <Music size={36} className="mx-auto text-gray-500" />
                 <p className="text-lg font-semibold text-white">This playlist is empty</p>
-                <p className="text-sm text-gray-400">Add songs using the 3-dot menu on any song card!</p>
+                <p className="text-sm text-gray-400">Add songs from the ⋯ menu on any song.</p>
               </div>
             ) : (
               selectedPlaylistTracks.map((song, idx) => (
@@ -160,10 +160,10 @@ export default function Library() {
         /* Standard Library Overview */
         <>
           {/* Header & Filter Tabs */}
-          <div className="stagger-reveal flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div className="stagger-reveal flex items-center justify-between gap-4">
             <div>
-              <h1 className="text-3xl md:text-4xl font-extrabold text-white">Your Library</h1>
-              <p className="text-gray-400 text-sm">Your favorite tracks and custom collections</p>
+              <h1 className="text-2xl sm:text-3xl md:text-4xl font-extrabold text-white">Your Library</h1>
+              <p className="hidden sm:block text-gray-400 text-sm">Your favorite tracks and custom collections</p>
             </div>
 
             <div className="flex items-center gap-2">
@@ -171,13 +171,13 @@ export default function Library() {
                 onClick={() => setIsCreateOpen(true)}
                 className="btn-primary py-2 px-4 text-xs flex items-center gap-1.5 shadow-md shadow-primary/20"
               >
-                <Plus size={16} /> Create Playlist
+                <Plus size={16} /> <span className="hidden sm:inline">Create Playlist</span><span className="sm:hidden">New</span>
               </button>
             </div>
           </div>
 
           {/* Tabs */}
-          <div className="stagger-reveal flex items-center gap-2 border-b border-white/10 pb-3">
+          <div className="stagger-reveal flex items-center gap-2 border-b border-white/10 pb-3 overflow-x-auto no-scrollbar">
             {[
               { id: 'all', label: 'All' },
               { id: 'liked', label: `Liked Songs (${likedTracks.length})` },
@@ -186,7 +186,7 @@ export default function Library() {
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
-                className={`px-4 py-2 rounded-full text-xs font-semibold transition-all ${
+                className={`px-4 py-2 rounded-full text-xs font-semibold whitespace-nowrap transition-all ${
                   activeTab === tab.id
                     ? 'bg-white text-black shadow'
                     : 'text-gray-400 hover:text-white hover:bg-white/5'
@@ -204,7 +204,7 @@ export default function Library() {
                 onClick={() => {
                   if (likedTracks.length > 0) playSong(likedTracks[0], likedTracks)
                 }}
-                className="group relative p-6 md:p-8 rounded-3xl bg-gradient-to-br from-purple-700 via-indigo-900 to-black border border-purple-500/30 cursor-pointer shadow-xl transition-all hover:scale-[1.01]"
+                className="group relative p-5 sm:p-6 md:p-8 rounded-2xl sm:rounded-3xl bg-gradient-to-br from-purple-700 via-indigo-900 to-black border border-purple-500/30 cursor-pointer shadow-xl transition-all can-hover:hover:scale-[1.01]"
               >
                 <div className="flex items-center justify-between">
                   <div className="space-y-3">
@@ -212,14 +212,14 @@ export default function Library() {
                       <Heart size={28} fill="white" />
                     </div>
                     <div>
-                      <h2 className="text-2xl md:text-3xl font-black text-white">Liked Songs</h2>
+                      <h2 className="text-xl sm:text-2xl md:text-3xl font-black text-white">Liked Songs</h2>
                       <p className="text-sm text-purple-200 mt-1">
                         {likedTracks.length} auto-saved favorite tracks
                       </p>
                     </div>
                   </div>
 
-                  <button className="w-14 h-14 rounded-full bg-primary text-black flex items-center justify-center shadow-xl shadow-primary/30 group-hover:scale-110 transition-transform">
+                  <button className="w-12 h-12 sm:w-14 sm:h-14 flex-shrink-0 rounded-full bg-primary text-black flex items-center justify-center shadow-xl shadow-primary/30 group-hover:scale-110 transition-transform">
                     <Play size={24} fill="currentColor" className="ml-1" />
                   </button>
                 </div>
@@ -247,11 +247,11 @@ export default function Library() {
                 <h2 className="text-xl font-bold text-white">Playlists</h2>
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4">
                 {/* Create Playlist Quick Tile */}
                 <div
                   onClick={() => setIsCreateOpen(true)}
-                  className="p-6 rounded-2xl border-2 border-dashed border-white/15 hover:border-primary bg-white/5 hover:bg-white/10 transition-all flex flex-col items-center justify-center text-center cursor-pointer group min-h-[180px]"
+                  className="p-4 sm:p-6 rounded-2xl border-2 border-dashed border-white/15 hover:border-primary bg-white/5 hover:bg-white/10 transition-all flex flex-col items-center justify-center text-center cursor-pointer group min-h-[150px] sm:min-h-[180px]"
                 >
                   <div className="w-12 h-12 rounded-full bg-primary/20 text-primary flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
                     <Plus size={24} />
@@ -264,7 +264,7 @@ export default function Library() {
                   <div
                     key={pl.id}
                     onClick={() => setSelectedPlaylistId(pl.id)}
-                    className="group p-5 rounded-2xl bg-secondary/40 hover:bg-secondary/70 border border-white/5 hover:border-primary/40 backdrop-blur-md transition-all cursor-pointer flex flex-col justify-between"
+                    className="group p-4 sm:p-5 rounded-2xl bg-secondary/40 hover:bg-secondary/70 border border-white/5 hover:border-primary/40 backdrop-blur-md transition-all cursor-pointer flex flex-col justify-between"
                   >
                     <div>
                       <div

@@ -105,7 +105,7 @@ export default function Auth({ onLogin }) {
   return (
     <div
       ref={containerRef}
-      className="min-h-screen bg-gradient-to-br from-dark via-gray-950 to-black flex items-center justify-center p-4 relative overflow-hidden font-poppins"
+      className="min-h-[100dvh] bg-gradient-to-br from-dark via-gray-950 to-black flex items-center justify-center p-4 relative overflow-hidden font-poppins"
     >
       {/* Ambient Neon Blobs */}
       <div className="absolute -top-32 -left-32 w-96 h-96 rounded-full bg-primary/20 blur-[140px] pointer-events-none" />
@@ -122,7 +122,7 @@ export default function Auth({ onLogin }) {
       {/* Auth Card Container */}
       <div
         ref={cardRef}
-        className="w-full max-w-md bg-secondary/50 backdrop-blur-2xl border border-white/10 rounded-3xl p-8 shadow-2xl relative z-10 space-y-6"
+        className="w-full max-w-md bg-secondary/50 backdrop-blur-2xl border border-white/10 rounded-3xl p-6 sm:p-8 shadow-2xl relative z-10 space-y-6"
       >
         {/* Brand Header */}
         <div className="text-center space-y-2">

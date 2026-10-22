@@ -36,7 +36,7 @@ export default function QueueDrawer() {
     <div className="fixed inset-0 z-50 flex justify-end bg-black/60 backdrop-blur-sm animate-fade-in">
       <div
         ref={drawerRef}
-        className="w-full max-w-md h-full bg-secondary/95 backdrop-blur-2xl border-l border-white/10 shadow-2xl flex flex-col z-10"
+        className="w-full sm:max-w-md h-full pt-safe pb-safe bg-secondary/95 backdrop-blur-2xl border-l border-white/10 shadow-2xl flex flex-col z-10"
       >
         {/* Header */}
         <div className="p-5 border-b border-white/10 flex items-center justify-between">
@@ -144,7 +144,7 @@ export default function QueueDrawer() {
                             e.stopPropagation()
                             removeFromQueue(actualIndex)
                           }}
-                          className="opacity-0 group-hover:opacity-100 p-1.5 text-gray-400 hover:text-red-400 rounded-md transition-all"
+                          className="can-hover:opacity-0 can-hover:group-hover:opacity-100 p-1.5 text-gray-400 hover:text-red-400 rounded-md transition-all"
                           title="Remove from queue"
                         >
                           <X size={14} />

@@ -83,3 +83,29 @@
 ::-webkit-scrollbar-thumb:hover {
   background: rgba(0, 212, 255, 0.5);
 }
+
+/* Mobile polish */
+@layer base {
+  html,
+  body {
+    overscroll-behavior: none;
+    -webkit-tap-highlight-color: transparent;
+  }
+}
+
+@layer utilities {
+  /* respect the notch / home indicator on phones */
+  .pt-safe {
+    padding-top: env(safe-area-inset-top);
+  }
+  .pb-safe {
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+
+  .no-scrollbar {
+    scrollbar-width: none;
+  }
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+}

@@ -1,15 +1,16 @@
-import React, { useRef, useState } from 'react'
-import { Play, Pause, Heart, MoreVertical, Plus, Radio, Disc } from 'lucide-react'
+import React, { useRef } from 'react'
+import { Play, Pause, Heart } from 'lucide-react'
 import { useMusic } from '../context/MusicContext'
 import { popHeart } from '../utils/animations'
+import SongMenu from './SongMenu'
 import gsap from 'gsap'
 
+const canHover = () => window.matchMedia('(hover: hover)').matches
+
 export default function SongCard({ song, queue = null }) {
-  const { currentSong, isPlaying, playSong, togglePlay, toggleLike, isLiked, addToQueue, playlists, addTrackToPlaylist } = useMusic()
+  const { currentSong, isPlaying, playSong, togglePlay, toggleLike, isLiked } = useMusic()
   const cardRef = useRef(null)
   const heartRef = useRef(null)
-  const [showMenu, setShowMenu] = useState(false)
-  const [showPlaylistSubmenu, setShowPlaylistSubmenu] = useState(false)
 
   const isCurrentTrack = (currentSong?.id || currentSong?._id) === (song.id || song._id)
   const isThisPlaying = isCurrentTrack && isPlaying
@@ -30,24 +31,15 @@ export default function SongCard({ song, queue = null }) {
     popHeart(heartRef.current)
   }
 
+  // lift animation only on devices with a real mouse
   const handleMouseEnter = () => {
-    gsap.to(cardRef.current, {
-      y: -6,
-      scale: 1.02,
-      duration: 0.25,
-      ease: 'power2.out',
-    })
+    if (!canHover()) return
+    gsap.to(cardRef.current, { y: -6, scale: 1.02, duration: 0.25, ease: 'power2.out' })
   }
 
   const handleMouseLeave = () => {
-    gsap.to(cardRef.current, {
-      y: 0,
-      scale: 1,
-      duration: 0.25,
-      ease: 'power2.out',
-    })
-    setShowMenu(false)
-    setShowPlaylistSubmenu(false)
+    if (!canHover()) return
+    gsap.to(cardRef.current, { y: 0, scale: 1, duration: 0.25, ease: 'power2.out' })
   }
 
   return (
@@ -56,12 +48,12 @@ export default function SongCard({ song, queue = null }) {
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
       onClick={handlePlayClick}
-      className={`group relative p-4 rounded-2xl bg-secondary/30 hover:bg-secondary/70 border border-white/5 hover:border-primary/40 backdrop-blur-md transition-colors duration-300 cursor-pointer flex flex-col justify-between select-none ${
+      className={`group relative p-2.5 sm:p-4 rounded-xl sm:rounded-2xl bg-secondary/30 hover:bg-secondary/70 border border-white/5 hover:border-primary/40 backdrop-blur-md transition-colors duration-300 cursor-pointer flex flex-col justify-between select-none ${
         isCurrentTrack ? 'ring-1 ring-primary/60 bg-secondary/60' : ''
       }`}
     >
       {/* Artwork Container */}
-      <div className="relative aspect-square w-full rounded-xl overflow-hidden mb-3.5 shadow-lg bg-black/40">
+      <div className="relative aspect-square w-full rounded-lg sm:rounded-xl overflow-hidden mb-2.5 sm:mb-3.5 shadow-lg bg-black/40">
         <img
           src={
             song.coverUrl ||
@@ -77,20 +69,21 @@ export default function SongCard({ song, queue = null }) {
 
         {/* Genre Tag Badge */}
         {song.genre && (
-          <span className="absolute top-2.5 left-2.5 px-2 py-0.5 rounded-md bg-black/60 backdrop-blur-md text-[10px] font-semibold text-gray-200 uppercase tracking-wider border border-white/10">
+          <span className="absolute top-2 left-2 sm:top-2.5 sm:left-2.5 px-2 py-0.5 rounded-md bg-black/60 backdrop-blur-md text-[9px] sm:text-[10px] font-semibold text-gray-200 uppercase tracking-wider border border-white/10 max-w-[70%] truncate">
             {song.genre}
           </span>
         )}
 
-        {/* Like Button */}
+        {/* Like Button (always shown when liked; on hover otherwise — touch users use the ⋯ menu) */}
         <button
           ref={heartRef}
           onClick={handleLikeClick}
-          className={`absolute top-2.5 right-2.5 p-2 rounded-full backdrop-blur-md transition-all duration-200 ${
+          className={`absolute top-2 right-2 sm:top-2.5 sm:right-2.5 p-2 rounded-full backdrop-blur-md transition-all duration-200 ${
             liked
-              ? 'text-accent bg-black/60 opacity-100'
-              : 'text-white/80 bg-black/40 opacity-0 group-hover:opacity-100 hover:text-white hover:scale-110'
+              ? 'text-accent bg-black/60'
+              : 'hidden md:block text-white/80 bg-black/40 opacity-0 group-hover:opacity-100 hover:text-white hover:scale-110'
           }`}
+          aria-label={liked ? 'Remove from Liked Songs' : 'Save to Liked Songs'}
         >
           <Heart size={16} fill={liked ? 'currentColor' : 'none'} />
         </button>
@@ -98,24 +91,24 @@ export default function SongCard({ song, queue = null }) {
         {/* Floating Play/Pause Button */}
         <button
           onClick={handlePlayClick}
-          className={`absolute bottom-3 right-3 w-12 h-12 rounded-full bg-primary text-black flex items-center justify-center shadow-xl shadow-primary/30 transition-all duration-300 transform ${
+          className={`absolute bottom-2 right-2 sm:bottom-3 sm:right-3 w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-primary text-black flex items-center justify-center shadow-xl shadow-primary/30 transition-all duration-300 transform ${
             isThisPlaying
               ? 'opacity-100 scale-100 translate-y-0'
-              : 'opacity-0 scale-75 translate-y-2 group-hover:opacity-100 group-hover:scale-100 group-hover:translate-y-0'
+              : 'opacity-0 scale-75 translate-y-2 md:group-hover:opacity-100 md:group-hover:scale-100 md:group-hover:translate-y-0'
           } hover:scale-110 active:scale-95`}
-          title={isThisPlaying ? 'Pause' : 'Play'}
+          aria-label={isThisPlaying ? 'Pause' : 'Play'}
         >
           {isThisPlaying ? (
-            <Pause size={20} fill="currentColor" />
+            <Pause size={18} fill="currentColor" />
           ) : (
-            <Play size={20} fill="currentColor" className="ml-0.5" />
+            <Play size={18} fill="currentColor" className="ml-0.5" />
           )}
         </button>
       </div>
 
       {/* Track Metadata */}
-      <div className="space-y-1">
-        <div className="flex items-center justify-between gap-1">
+      <div className="flex items-start justify-between gap-1">
+        <div className="min-w-0 flex-1">
           <h4
             className={`font-semibold text-sm truncate transition-colors ${
               isCurrentTrack ? 'text-primary' : 'text-white group-hover:text-primary'
@@ -123,64 +116,12 @@ export default function SongCard({ song, queue = null }) {
           >
             {song.title}
           </h4>
-
-          {/* Context Options Menu Trigger */}
-          <div className="relative" onClick={(e) => e.stopPropagation()}>
-            <button
-              onClick={() => setShowMenu((prev) => !prev)}
-              className="opacity-0 group-hover:opacity-100 p-1 rounded-md text-gray-400 hover:text-white hover:bg-white/10 transition-all"
-            >
-              <MoreVertical size={15} />
-            </button>
-
-            {/* Dropdown Menu */}
-            {showMenu && (
-              <div className="absolute right-0 bottom-full mb-1 w-44 rounded-xl bg-secondary/95 backdrop-blur-xl border border-white/10 shadow-2xl p-1.5 z-40 text-xs text-gray-200 animate-fade-in">
-                <button
-                  onClick={() => {
-                    addToQueue(song)
-                    setShowMenu(false)
-                  }}
-                  className="w-full text-left px-3 py-2 rounded-lg hover:bg-white/10 flex items-center gap-2"
-                >
-                  <Plus size={14} /> Add to Queue
-                </button>
-                <div
-                  className="relative group/sub"
-                  onMouseEnter={() => setShowPlaylistSubmenu(true)}
-                  onMouseLeave={() => setShowPlaylistSubmenu(false)}
-                >
-                  <button className="w-full text-left px-3 py-2 rounded-lg hover:bg-white/10 flex items-center justify-between">
-                    <span className="flex items-center gap-2">
-                      <Disc size={14} /> Add to Playlist
-                    </span>
-                  </button>
-
-                  {showPlaylistSubmenu && (
-                    <div className="absolute left-full bottom-0 ml-1 w-40 rounded-xl bg-secondary/95 backdrop-blur-xl border border-white/10 shadow-2xl p-1.5 z-50">
-                      {playlists.map((pl) => (
-                        <button
-                          key={pl.id}
-                          onClick={() => {
-                            addTrackToPlaylist(pl.id, song.id || song._id)
-                            setShowMenu(false)
-                          }}
-                          className="w-full text-left px-2.5 py-1.5 rounded-lg hover:bg-white/10 truncate"
-                        >
-                          {pl.title}
-                        </button>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              </div>
-            )}
-          </div>
+          <p className="text-xs text-gray-400 truncate mt-0.5">
+            {song.artistName || song.artist?.name || 'Beatly Artist'}
+          </p>
         </div>
 
-        <p className="text-xs text-gray-400 truncate">
-          {song.artistName || song.artist?.name || 'Beatly Artist'}
-        </p>
+        <SongMenu song={song} placement="up" triggerClassName="-mr-1.5 can-hover:opacity-0 can-hover:group-hover:opacity-100" />
       </div>
     </div>
   )

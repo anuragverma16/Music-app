@@ -19,15 +19,10 @@ export default function LyricsModal() {
 
   if (!showLyrics || !currentSong) return null
 
-  // Parse sample lyrics lines with timestamp markers if available
-  const rawLyrics = currentSong.lyrics || `[00:05] Instrumental Intro
-[00:15] Lost in the rhythm of the neon lights
-[00:25] Chasing the melody through endless nights
-[00:35] Feel the vibration, let your spirit fly
-[00:48] Underneath the starlight in the velvet sky
-[01:00] Beatly streams your heartbeat every second of the day`
+  // Parse lyrics lines with [mm:ss] timestamp markers if available
+  const rawLyrics = (currentSong.lyrics || '').trim()
 
-  const lines = rawLyrics.split('\n').map((line, idx) => {
+  const lines = (rawLyrics ? rawLyrics.split('\n') : []).map((line, idx) => {
     const match = line.match(/\[(\d+):(\d+)\]\s*(.*)/)
     if (match) {
       const minutes = parseInt(match[1], 10)
@@ -47,10 +42,10 @@ export default function LyricsModal() {
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 md:p-10 bg-black/80 backdrop-blur-xl animate-fade-in">
+    <div className="fixed inset-0 z-50 flex items-center justify-center sm:p-4 md:p-10 bg-black/80 backdrop-blur-xl animate-fade-in">
       <div
         ref={modalRef}
-        className="w-full max-w-4xl h-[85vh] rounded-3xl bg-gradient-to-br from-secondary/90 via-dark/95 to-black/90 border border-white/10 shadow-2xl flex flex-col overflow-hidden relative"
+        className="w-full max-w-4xl h-full sm:h-[85vh] sm:rounded-3xl pt-safe bg-gradient-to-br from-secondary/90 via-dark/95 to-black/90 border border-white/10 shadow-2xl flex flex-col overflow-hidden relative"
       >
         {/* Ambient Top Glow */}
         <div
@@ -59,16 +54,16 @@ export default function LyricsModal() {
         />
 
         {/* Modal Header */}
-        <div className="p-6 border-b border-white/10 flex items-center justify-between z-10">
-          <div className="flex items-center gap-3">
+        <div className="p-4 sm:p-6 border-b border-white/10 flex items-center justify-between gap-3 z-10">
+          <div className="flex items-center gap-3 min-w-0">
             <div className="p-2.5 rounded-xl bg-primary/20 text-primary">
               <Mic2 size={22} />
             </div>
             <div>
               <h3 className="text-lg font-bold text-white flex items-center gap-2">
-                Live Synced Lyrics
+                Lyrics
               </h3>
-              <p className="text-xs text-gray-400">
+              <p className="text-xs text-gray-400 truncate">
                 {currentSong.title} — {currentSong.artistName || currentSong.artist?.name}
               </p>
             </div>
@@ -83,7 +78,10 @@ export default function LyricsModal() {
         </div>
 
         {/* Lyrics Scrollable Body */}
-        <div className="flex-1 overflow-y-auto p-8 md:p-12 space-y-8 text-center custom-scrollbar z-10">
+        <div className="flex-1 overflow-y-auto px-5 py-8 md:p-12 space-y-6 md:space-y-8 text-center custom-scrollbar z-10">
+          {lines.length === 0 && (
+            <p className="text-lg text-gray-500 pt-16">Lyrics aren’t available for this song.</p>
+          )}
           {lines.map((item, idx) => {
             const isActive = idx === activeIndex
             const isPast = idx < activeIndex
@@ -93,21 +91,16 @@ export default function LyricsModal() {
                 key={item.id}
                 className={`transition-all duration-300 font-bold ${
                   isActive
-                    ? 'text-3xl md:text-4xl text-primary scale-105 shadow-glow'
+                    ? 'text-2xl md:text-4xl text-primary'
                     : isPast
-                    ? 'text-xl md:text-2xl text-gray-400 opacity-60'
-                    : 'text-xl md:text-2xl text-gray-600 opacity-40 hover:opacity-80'
+                    ? 'text-lg md:text-2xl text-gray-400 opacity-60'
+                    : 'text-lg md:text-2xl text-gray-600 opacity-40 hover:opacity-80'
                 }`}
               >
                 {item.text}
               </p>
             )
           })}
-        </div>
-
-        {/* Footer info */}
-        <div className="p-4 border-t border-white/5 bg-black/40 text-center text-xs text-gray-500 z-10">
-          Beatly Real-time Lyrics Synchronization Engine
         </div>
       </div>
     </div>

@@ -69,7 +69,7 @@ function App() {
               element={
                 <Layout userRole={userRole} onLogout={handleLogout}>
                   <Routes>
-                    <Route path="/" element={<Home />} />
+                    <Route path="/" element={<Home userRole={userRole} />} />
                     <Route path="/explore" element={<Explore />} />
                     <Route path="/library" element={<Library />} />
                     {userRole === 'artist' && (

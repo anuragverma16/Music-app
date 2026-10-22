@@ -1,25 +1,13 @@
-import React, { useRef, useState } from 'react'
-import { Play, Pause, Heart, MoreHorizontal, Plus, Disc, Volume2 } from 'lucide-react'
+import React, { useRef } from 'react'
+import { Play, Heart } from 'lucide-react'
 import { useMusic } from '../context/MusicContext'
 import { popHeart } from '../utils/animations'
+import SongMenu from './SongMenu'
 
 export default function SongListRow({ song, index, queue = null, showAlbum = true }) {
-  const {
-    currentSong,
-    isPlaying,
-    playSong,
-    togglePlay,
-    toggleLike,
-    isLiked,
-    addToQueue,
-    playlists,
-    addTrackToPlaylist,
-    formatTime,
-  } = useMusic()
+  const { currentSong, isPlaying, playSong, togglePlay, toggleLike, isLiked, formatTime } = useMusic()
 
   const heartRef = useRef(null)
-  const [showMenu, setShowMenu] = useState(false)
-  const [showPlaylistSubmenu, setShowPlaylistSubmenu] = useState(false)
 
   const isCurrentTrack = (currentSong?.id || currentSong?._id) === (song.id || song._id)
   const isThisPlaying = isCurrentTrack && isPlaying
@@ -42,18 +30,14 @@ export default function SongListRow({ song, index, queue = null, showAlbum = tru
   return (
     <div
       onClick={handlePlayClick}
-      onMouseLeave={() => {
-        setShowMenu(false)
-        setShowPlaylistSubmenu(false)
-      }}
-      className={`group flex items-center gap-4 px-4 py-3 rounded-xl transition-all duration-200 cursor-pointer select-none text-sm ${
+      className={`group flex items-center gap-3 sm:gap-4 px-2 sm:px-4 py-2 sm:py-3 rounded-xl transition-all duration-200 cursor-pointer select-none text-sm ${
         isCurrentTrack
           ? 'bg-white/10 text-primary font-medium'
-          : 'hover:bg-white/5 text-gray-300 hover:text-white'
+          : 'hover:bg-white/5 active:bg-white/5 text-gray-300 hover:text-white'
       }`}
     >
       {/* Index or Play Button / Animated Equalizer */}
-      <div className="w-7 flex items-center justify-center flex-shrink-0 text-xs text-gray-400">
+      <div className="hidden sm:flex w-7 items-center justify-center flex-shrink-0 text-xs text-gray-400">
         {isThisPlaying ? (
           <div className="flex items-end gap-0.5 h-3.5">
             <span className="w-0.5 h-full bg-primary animate-bounce"></span>
@@ -76,7 +60,7 @@ export default function SongListRow({ song, index, queue = null, showAlbum = tru
             'https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=600&auto=format&fit=crop&q=80'
           }
           alt={song.title}
-          className="w-10 h-10 rounded-lg object-cover flex-shrink-0 shadow"
+          className="w-11 h-11 sm:w-10 sm:h-10 rounded-lg object-cover flex-shrink-0 shadow"
         />
         <div className="min-w-0 flex-1">
           <p
@@ -108,75 +92,26 @@ export default function SongListRow({ song, index, queue = null, showAlbum = tru
         </div>
       )}
 
-      {/* Like Button */}
+      {/* Like Button (desktop; on phones it lives in the ⋯ menu) */}
       <button
         ref={heartRef}
         onClick={handleLikeClick}
         className={`p-1.5 rounded-full transition-colors ${
           liked
-            ? 'text-accent opacity-100'
-            : 'text-gray-400 opacity-0 group-hover:opacity-100 hover:text-white'
+            ? 'text-accent'
+            : 'hidden sm:block text-gray-400 opacity-0 group-hover:opacity-100 hover:text-white'
         }`}
+        aria-label={liked ? 'Remove from Liked Songs' : 'Save to Liked Songs'}
       >
         <Heart size={16} fill={liked ? 'currentColor' : 'none'} />
       </button>
 
       {/* Duration */}
-      <div className="text-xs text-gray-400 w-12 text-right">
+      <div className="hidden sm:block text-xs text-gray-400 w-12 text-right">
         {song.formattedDuration || formatTime(song.duration || 195)}
       </div>
 
-      {/* Context Menu */}
-      <div className="relative" onClick={(e) => e.stopPropagation()}>
-        <button
-          onClick={() => setShowMenu((prev) => !prev)}
-          className="p-1.5 rounded-full text-gray-400 opacity-0 group-hover:opacity-100 hover:text-white hover:bg-white/10 transition-all"
-        >
-          <MoreHorizontal size={16} />
-        </button>
-
-        {showMenu && (
-          <div className="absolute right-0 top-full mt-1 w-44 rounded-xl bg-secondary/95 backdrop-blur-xl border border-white/10 shadow-2xl p-1.5 z-40 text-xs text-gray-200 animate-fade-in">
-            <button
-              onClick={() => {
-                addToQueue(song)
-                setShowMenu(false)
-              }}
-              className="w-full text-left px-3 py-2 rounded-lg hover:bg-white/10 flex items-center gap-2"
-            >
-              <Plus size={14} /> Add to Queue
-            </button>
-            <div
-              className="relative"
-              onMouseEnter={() => setShowPlaylistSubmenu(true)}
-              onMouseLeave={() => setShowPlaylistSubmenu(false)}
-            >
-              <button className="w-full text-left px-3 py-2 rounded-lg hover:bg-white/10 flex items-center justify-between">
-                <span className="flex items-center gap-2">
-                  <Disc size={14} /> Add to Playlist
-                </span>
-              </button>
-
-              {showPlaylistSubmenu && (
-                <div className="absolute right-full top-0 mr-1 w-40 rounded-xl bg-secondary/95 backdrop-blur-xl border border-white/10 shadow-2xl p-1.5 z-50">
-                  {playlists.map((pl) => (
-                    <button
-                      key={pl.id}
-                      onClick={() => {
-                        addTrackToPlaylist(pl.id, song.id || song._id)
-                        setShowMenu(false)
-                      }}
-                      className="w-full text-left px-2.5 py-1.5 rounded-lg hover:bg-white/10 truncate"
-                    >
-                      {pl.title}
-                    </button>
-                  ))}
-                </div>
-              )}
-            </div>
-          </div>
-        )}
-      </div>
+      <SongMenu song={song} triggerClassName="can-hover:opacity-0 can-hover:group-hover:opacity-100" />
     </div>
   )
 }
