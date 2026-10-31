@@ -61,7 +61,7 @@ export default function FullscreenPlayer() {
   }
 
   const handleLike = () => {
-    toggleLike(currentSong.id || currentSong._id)
+    toggleLike(currentSong)
     popHeart(heartRef.current)
   }
 

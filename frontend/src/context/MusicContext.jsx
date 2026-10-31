@@ -16,6 +16,16 @@ export const MusicProvider = ({ children }) => {
     }
   })
 
+  // Liked songs from the search API, keyed by id, so they survive a reload
+  const [externalLiked, setExternalLiked] = useState(() => {
+    try {
+      const saved = localStorage.getItem('beatly_liked_external')
+      return saved ? JSON.parse(saved) : {}
+    } catch {
+      return {}
+    }
+  })
+
   // Playlists State - stored per user
   const [playlists, setPlaylists] = useState(() => {
     try {
@@ -54,6 +64,10 @@ export const MusicProvider = ({ children }) => {
   useEffect(() => {
     localStorage.setItem('beatly_liked_songs', JSON.stringify(likedSongIds))
   }, [likedSongIds])
+
+  useEffect(() => {
+    localStorage.setItem('beatly_liked_external', JSON.stringify(externalLiked))
+  }, [externalLiked])
 
   // Save Playlists to localStorage
   useEffect(() => {
@@ -289,15 +303,19 @@ export const MusicProvider = ({ children }) => {
     })
   }
 
-  // Like Song
-  const toggleLike = (songId) => {
-    setLikedSongIds((prev) => {
-      if (prev.includes(songId)) {
-        return prev.filter((id) => id !== songId)
-      } else {
-        return [...prev, songId]
-      }
-    })
+  // Like Song (takes the full song object so API songs can be stored with their details)
+  const toggleLike = (song) => {
+    const songId = song.id || song._id
+    const wasLiked = likedSongIds.includes(songId)
+
+    setLikedSongIds((prev) => (wasLiked ? prev.filter((id) => id !== songId) : [...prev, songId]))
+
+    if (song.source) {
+      setExternalLiked((prev) => {
+        if (wasLiked) return Object.fromEntries(Object.entries(prev).filter(([id]) => id !== songId))
+        return { ...prev, [songId]: song }
+      })
+    }
   }
 
   const isLiked = (songId) => likedSongIds.includes(songId)
@@ -371,7 +389,10 @@ export const MusicProvider = ({ children }) => {
   }
 
   // Liked tracks full objects
-  const likedTracks = tracks.filter((t) => likedSongIds.includes(t.id || t._id))
+  const likedTracks = [
+    ...tracks.filter((t) => likedSongIds.includes(t.id || t._id)),
+    ...Object.values(externalLiked).filter((s) => likedSongIds.includes(s.id)),
+  ]
 
   const value = {
     tracks,

@@ -1,5 +1,6 @@
 require("dotenv").config();
 const express = require("express");
+const mongoose = require("mongoose");
 const cors = require("cors");
 const cookieParser = require("cookie-parser");
 const connectDB = require("./config/db");
@@ -42,7 +43,10 @@ app.use(express.json());
 app.use(cookieParser());
 app.use(express.urlencoded({ extended: true }));
 
-app.get("/api/health", (req, res) => res.status(200).json({ status: "ok" }));
+// readyState: 1 = connected, 0 = disconnected, 2 = connecting
+app.get("/api/health", (req, res) =>
+  res.status(200).json({ status: "ok", db: mongoose.connection.readyState === 1 ? "connected" : "disconnected" }),
+);
 
 app.use("/api", userRoutes);
 app.use("/api", musicroutes);

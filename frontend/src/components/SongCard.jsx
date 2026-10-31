@@ -27,7 +27,7 @@ export default function SongCard({ song, queue = null }) {
 
   const handleLikeClick = (e) => {
     e.stopPropagation()
-    toggleLike(song.id || song._id)
+    toggleLike(song)
     popHeart(heartRef.current)
   }
 

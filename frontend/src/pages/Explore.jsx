@@ -1,4 +1,4 @@
-import React, { useRef, useEffect } from 'react'
+import React, { useRef, useEffect, useState } from 'react'
 import {
   Search,
   Sparkles,
@@ -14,6 +14,7 @@ import SongCard from '../components/SongCard'
 import SongListRow from '../components/SongListRow'
 import { GENRES } from '../data/mockTracks'
 import { animateEntrance } from '../utils/animations'
+import { musicAPI } from '../utils/api'
 
 export default function Explore() {
   const {
@@ -28,6 +29,36 @@ export default function Explore() {
   } = useMusic()
 
   const pageRef = useRef(null)
+  const [webResults, setWebResults] = useState([])
+  const [webLoading, setWebLoading] = useState(false)
+
+  // Search the free music catalogs, waiting until typing pauses
+  useEffect(() => {
+    const query = searchQuery.trim()
+    if (!query) {
+      setWebResults([])
+      setWebLoading(false)
+      return
+    }
+
+    let cancelled = false
+    setWebLoading(true)
+    const timer = setTimeout(async () => {
+      try {
+        const { data } = await musicAPI.searchMusic(query)
+        if (!cancelled) setWebResults(data.results || [])
+      } catch {
+        if (!cancelled) setWebResults([])
+      } finally {
+        if (!cancelled) setWebLoading(false)
+      }
+    }, 400)
+
+    return () => {
+      cancelled = true
+      clearTimeout(timer)
+    }
+  }, [searchQuery])
 
   useEffect(() => {
     if (pageRef.current) {
@@ -113,7 +144,7 @@ export default function Explore() {
         <div className="stagger-reveal space-y-6">
           <h2 className="text-lg sm:text-xl font-bold text-white break-words">Results for "{searchQuery}"</h2>
 
-          {filteredTracks.length === 0 ? (
+          {filteredTracks.length === 0 && webResults.length === 0 && !webLoading ? (
             <div className="text-center py-16 rounded-2xl bg-secondary/30 border border-white/5 space-y-2">
               <Music2 size={36} className="mx-auto text-gray-500" />
               <p className="text-lg font-semibold text-white">No tracks found</p>
@@ -170,6 +201,25 @@ export default function Explore() {
                     />
                   ))}
                 </div>
+              </div>
+            </div>
+          )}
+
+          {/* Songs from the free music APIs (full tracks when available, otherwise 30s previews) */}
+          {(webLoading || webResults.length > 0) && (
+            <div className="space-y-2">
+              <span className="text-xs font-bold text-gray-400 uppercase tracking-wider block mb-2 px-3">
+                {webLoading ? 'Searching more songs…' : `More songs (${webResults.length})`}
+              </span>
+              <div className="space-y-1">
+                {webResults.map((song, idx) => (
+                  <SongListRow
+                    key={song.id}
+                    song={song}
+                    index={idx}
+                    queue={webResults}
+                  />
+                ))}
               </div>
             </div>
           )}

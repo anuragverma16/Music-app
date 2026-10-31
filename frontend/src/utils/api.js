@@ -81,6 +81,7 @@ export const musicAPI = {
   getAllMusic: () => api.get('/getmusic'),
   getAlbums: () => api.get('/getalbum'),
   createAlbum: (data) => api.post('/album', data),
+  searchMusic: (query) => api.get('/search', { params: { q: query } }),
 }
 
 export default api

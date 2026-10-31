@@ -26,4 +26,7 @@ router.get("/getmusic", authUser, musicController.getallmusic);
 
 router.get("/getalbum",authUser,musicController.getalbums)
 
+// search any song from free catalogs (Deezer, plus Jamendo full tracks when keyed)
+router.get("/search", authUser, musicController.searchmusic)
+
 module.exports = router;

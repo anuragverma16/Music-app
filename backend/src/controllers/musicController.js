@@ -2,6 +2,7 @@ const mongoose = require("mongoose");
 const Music = require("../models/music");
 const album = require("../models/album");
 const { uploadFile, getUploadAuth } = require("../services/storage.service.js");
+const { searchMusic } = require("../services/musicSearch.service");
 
 const createmusic = async (req, res) => {
   try {
@@ -181,4 +182,19 @@ const getalbums = async (req, res) => {
   }
 };
 
-module.exports = { createmusic, uploadauth, savemusic, getalbum, getallmusic, getalbums };
+const searchmusic = async (req, res) => {
+  const query = (req.query.q || "").toString().trim();
+  if (!query) {
+    return res.status(400).json({ message: "Search query is required" });
+  }
+
+  try {
+    const results = await searchMusic(query);
+    return res.status(200).json({ message: "Search results", results });
+  } catch (error) {
+    console.error("Error searching music:", error);
+    return res.status(500).json({ message: "Search failed", error: error.message });
+  }
+};
+
+module.exports = { createmusic, uploadauth, savemusic, getalbum, getallmusic, getalbums, searchmusic };

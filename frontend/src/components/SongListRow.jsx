@@ -23,7 +23,7 @@ export default function SongListRow({ song, index, queue = null, showAlbum = tru
 
   const handleLikeClick = (e) => {
     e.stopPropagation()
-    toggleLike(song.id || song._id)
+    toggleLike(song)
     popHeart(heartRef.current)
   }
 
